@@ -1,9 +1,12 @@
 package eu.oschl.music_lesson_booking.database.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Tutor {
@@ -14,6 +17,9 @@ public class Tutor {
 
     private String firstName;
     private String lastName;
+
+    @OneToMany(mappedBy = "tutor")
+    private List<InstrumentAvailability> instruments;
 
     protected Tutor() {}
 
