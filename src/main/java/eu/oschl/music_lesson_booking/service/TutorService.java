@@ -1,7 +1,7 @@
 package eu.oschl.music_lesson_booking.service;
 
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
-import eu.oschl.music_lesson_booking.database.repository.InstrumentAvailabilityRepository;
+import eu.oschl.music_lesson_booking.database.repository.InstrumentRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 public class TutorService {
 
     private final TutorRepository repository;
-    private final InstrumentAvailabilityRepository instrumentAvailabilityRepository;
+    private final InstrumentRepository instrumentRepository;
 
     public TutorService(
         TutorRepository repository,
-        InstrumentAvailabilityRepository instrumentAvailabilityRepository
+        InstrumentRepository instrumentRepository
     ) {
         this.repository = repository;
-        this.instrumentAvailabilityRepository = instrumentAvailabilityRepository;
+        this.instrumentRepository = instrumentRepository;
     }
 
     public List<Tutor> getAllTutors() {
