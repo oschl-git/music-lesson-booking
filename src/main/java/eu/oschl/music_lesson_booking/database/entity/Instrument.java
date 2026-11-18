@@ -30,4 +30,16 @@ public class Instrument {
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
     }
+
+	public String getInstrument() {
+		return instrument;
+	}
+
+	public int getMinLevel() {
+		return minLevel;
+	}
+
+	public int getMaxLevel() {
+		return maxLevel;
+	}
 }

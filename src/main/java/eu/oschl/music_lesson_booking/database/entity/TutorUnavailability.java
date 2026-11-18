@@ -32,4 +32,20 @@ public class TutorUnavailability {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
+	public Long getId() {
+		return id;
+	}
+
+	public Tutor getTutor() {
+		return tutor;
+	}
+
+	public LocalDateTime getStartTime() {
+		return startTime;
+	}
+
+	public LocalDateTime getEndTime() {
+		return endTime;
+	}
 }

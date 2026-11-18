@@ -1,0 +1,3 @@
+2026-11-17 18:06:28.207591Z jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKINGS" not found; SQL statement:
+select * from bookings [42102-240]

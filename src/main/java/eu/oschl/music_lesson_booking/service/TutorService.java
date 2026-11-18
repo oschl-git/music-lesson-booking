@@ -3,24 +3,25 @@ package eu.oschl.music_lesson_booking.service;
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
 import eu.oschl.music_lesson_booking.database.repository.InstrumentRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
-import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class TutorService {
 
-    private final TutorRepository repository;
-    private final InstrumentRepository instrumentRepository;
+    private final TutorRepository tutors;
+    private final InstrumentRepository instruments;
 
     public TutorService(
-        TutorRepository repository,
-        InstrumentRepository instrumentRepository
+        TutorRepository tutors,
+        InstrumentRepository instruments
     ) {
-        this.repository = repository;
-        this.instrumentRepository = instrumentRepository;
+        this.tutors = tutors;
+        this.instruments = instruments;
     }
 
-    public List<Tutor> getAllTutors() {
-        return this.repository.findAll();
+    public Tutor getTutorById(Long id) {
+        return tutors.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 }

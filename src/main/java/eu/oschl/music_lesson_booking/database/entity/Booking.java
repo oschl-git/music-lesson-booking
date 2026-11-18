@@ -36,4 +36,24 @@ public class Booking {
         this.pupilMatric = pupilMatric;
         this.startDateTime = startDateTime;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+	public LocalDateTime getStartDateTime() {
+		return startDateTime;
+	}
+
+	public Tutor getTutor() {
+		return tutor;
+	}
+
+	public String getInstrument() {
+		return instrument;
+	}
+
+	public int getPupilMatric() {
+		return pupilMatric;
+	}
 }
