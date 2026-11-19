@@ -106,11 +106,24 @@
           }
 
           for (const lesson of lessonsNextWeek) {
-            nextWeekSection.innerHTML += bookedLessonHTML(lesson);
+            nextWeekSection.innerHTML += bookedLessonHTML(lesson, true);
           }
         }
 
-        function bookedLessonHTML(lesson) {
+        async function cancelBooking(bookingId) {
+            if (!confirm("Are you sure you want to cancel this booking?")) {
+                return;
+            }
+
+            try {
+                await makeDeleteRequest(`/bookings/${bookingId}`);
+            } catch (error) {
+                alert("Failed cancelling booking.");
+            }
+
+            renderDashboard();
+        }
+        function bookedLessonHTML(lesson, allowCancel = false) {
           const startDate = new Date(lesson.startDateTime);
           const endDate = new Date(startDate);
 
@@ -126,7 +139,7 @@
               minute: "2-digit"
           });
 
-          return `
+          let html = `
             <div class="booked-lesson">
               <h4 class="capitalize">${lesson.instrument}</h4>
               <ul>
@@ -134,8 +147,19 @@
                 <li>${start} - ${end}</li>
                 <li>tutor: ${lesson.tutor.firstName} ${lesson.tutor.lastName}</li>
               </ul>
-            </div>
           `
+
+          if (allowCancel) {
+            html += `
+              <button class="cancel-button" onclick="cancelBooking(${lesson.id})">
+                  Cancel booking
+              </button>
+            `
+          }
+
+          html += "</div>"
+
+          return html;
         }
     </script>
 </html>

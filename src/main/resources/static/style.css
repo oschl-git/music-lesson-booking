@@ -5,18 +5,18 @@
 }
 
 html {
-    background-color: #3b3833;
-    color: #f0ecc9;
+    color: #000000;
+    background-color: #c0c0c0;
     font-family: "Cousine", monospace;
     font-weight: 400;
 }
 
 a {
-    color: #058789;
+    color: #00a8a8;
 }
 
 a:hover {
-    color: #e3a72f;
+    color: #b0007f;
 }
 
 .align-center {
@@ -42,16 +42,16 @@ a:hover {
 .role-selection-link {
     display: inline-block;
     text-align: center;
-    background-color: #058789;
+    background-color: #00a8a8;
     margin: 1rem;
     padding: 1rem;
 
     a {
-        color: #f0ecc9;
+        color: white;
     }
 
     a:hover {
-        color: #e3a72f;
+        color: #b0007f;
     }
 }
 
@@ -67,8 +67,18 @@ a:hover {
 
 .booked-lesson {
     width: 100%;
-    background-color: #f0ecc9;
-    color: black;
-    padding: .5rem;
+    background-color: #0b0bf4;
+    color: white;
+    padding: 0.5rem;
     padding-left: 1.5rem;
+}
+
+button {
+    background-color: #00a8a8;
+    color: white;
+    padding: 0.4rem;
+}
+
+.cancel-button {
+    background-color: red;
 }

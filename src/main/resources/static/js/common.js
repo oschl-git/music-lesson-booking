@@ -23,3 +23,11 @@ async function makePostRequest(endpoint, body) {
 
   return await response.json();
 }
+
+async function makeDeleteRequest(endpoint) {
+  const response = await fetch(endpoint, {method: "DELETE"});
+
+  if (!response.ok) {
+      throw new Error(`DELETE request failed: ${response.status}`);
+  }
+}

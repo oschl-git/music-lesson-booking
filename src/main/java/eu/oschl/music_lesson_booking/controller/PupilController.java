@@ -1,12 +1,9 @@
 package eu.oschl.music_lesson_booking.controller;
 
-import eu.oschl.music_lesson_booking.database.entity.Booking;
 import eu.oschl.music_lesson_booking.dto.PupilVerificationRequest;
 import eu.oschl.music_lesson_booking.dto.PupilVerificationResponse;
-import eu.oschl.music_lesson_booking.service.BookingService;
 import eu.oschl.music_lesson_booking.service.PupilService;
 
-import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;

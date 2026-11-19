@@ -73,6 +73,21 @@ public class BookingService {
         return this.bookings.save(booking);
     }
 
+    public void cancelBooking(Long bookingId) {
+        var booking = bookings.findById(bookingId).orElseThrow(
+            () -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "The booking does not exist"
+            )
+        );
+
+        if (!isNextWeek(booking.getStartDateTime())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only bookings next week can be cancelled");
+        }
+
+        this.bookings.deleteById(bookingId);
+    }
+
     public List<Booking> getThisWeekBookingsForPupil(int matric) {
         var end = getNextMonday();
         var start = end.minusDays(7);
