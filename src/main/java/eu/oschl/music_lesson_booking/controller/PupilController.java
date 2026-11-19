@@ -34,11 +34,11 @@ public class PupilController {
             var pupil = this.pupilService.getPupilByMatric(body.matric());
 
             if (pupil.matric() == body.matric() && pupil.name().equals(body.name())) {
-                return ResponseEntity.ok(new PupilVerificationResponse(true));
+                return ResponseEntity.ok(new PupilVerificationResponse(true, pupil.name(), pupil.matric(), pupil.age()));
             }
         } catch (HttpClientErrorException.NotFound exception) {
         }
 
-        return ResponseEntity.ok(new PupilVerificationResponse(false));
+        return ResponseEntity.ok(new PupilVerificationResponse(false, null, null, null));
     }
 }

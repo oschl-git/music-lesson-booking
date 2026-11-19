@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
+* {
+    box-sizing: border-box;
+}
+
 html {
     background-color: #3b3833;
     color: #f0ecc9;
@@ -12,7 +16,7 @@ a {
 }
 
 a:hover {
-    color:  #e3a72f;
+    color: #e3a72f;
 }
 
 .align-center {
@@ -47,6 +51,24 @@ a:hover {
     }
 
     a:hover {
-        color:  #e3a72f;
+        color: #e3a72f;
     }
+}
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+.booked-lesson-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.booked-lesson {
+    width: 100%;
+    background-color: #f0ecc9;
+    color: black;
+    padding: .5rem;
+    padding-left: 1.5rem;
 }

@@ -13,6 +13,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -69,6 +71,20 @@ public class BookingService {
         }
 
         return this.bookings.save(booking);
+    }
+
+    public List<Booking> getThisWeekBookingsForPupil(int matric) {
+        var end = getNextMonday();
+        var start = end.minusDays(7);
+
+        return this.bookings.findBookingsForPupilInRange(matric, start.atStartOfDay(), end.atStartOfDay());
+    }
+
+    public List<Booking> getNextWeekBookingsForPupil(int matric) {
+        var start = getNextMonday();
+        var end = start.plusDays(7);
+
+        return this.bookings.findBookingsForPupilInRange(matric, start.atStartOfDay(), end.atStartOfDay());
     }
 
     private boolean isBookingValid(Booking booking, String pupilName) {
@@ -225,10 +241,9 @@ public class BookingService {
     }
 
     private boolean isNextWeek(LocalDateTime startDateTime) {
-        var today = LocalDate.now();
         var startDate = startDateTime.toLocalDate();
 
-        var nextMonday = today.plusDays(8 - today.getDayOfWeek().getValue());
+        var nextMonday = getNextMonday();
         var nextSunday = nextMonday.plusDays(6);
 
         if (
@@ -238,5 +253,10 @@ public class BookingService {
         }
 
         return true;
+    }
+
+    private LocalDate getNextMonday() {
+        var today = LocalDate.now();
+        return today.plusDays(8 - today.getDayOfWeek().getValue());
     }
 }

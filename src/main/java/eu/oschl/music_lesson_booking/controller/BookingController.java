@@ -4,11 +4,14 @@ import eu.oschl.music_lesson_booking.database.entity.Booking;
 import eu.oschl.music_lesson_booking.dto.BookingRequest;
 import eu.oschl.music_lesson_booking.service.BookingService;
 import java.net.URI;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,5 +34,15 @@ public class BookingController {
         return ResponseEntity.created(
             URI.create("/bookings/" + booking.getId())
         ).body(booking);
+    }
+
+    @GetMapping("/this-week")
+    public List<Booking> getThisWeekBookingsForPupil(@RequestParam int matric) {
+        return bookingService.getThisWeekBookingsForPupil(matric);
+    }
+
+    @GetMapping("/next-week")
+    public List<Booking> getNextWeekBookingsForPupil(@RequestParam int matric) {
+        return bookingService.getNextWeekBookingsForPupil(matric);
     }
 }

@@ -30,23 +30,30 @@
                 <div class="large-top-margin">
                     <a href="/"><< Back to role selection</a>
                 </div>
-
             </form>
         </div>
         <div id="dashboard" hidden>
             <h1 class="align-center large-top-margin">Pupil Dashboard</h1>
 
             <p class="align-center top-margin bottom-margin">
-                View your booked lessons for this week, and book lessons for next week below.
+                On this page, you can view and cancel your booked lessons, and book lessons for next week.
             </p>
 
-            <h2>Booked lessons this week:</h2>
-            <h2>Book lessons for next week:</h2>
+            <h2>Booked lessons</h2>
+
+            <h3>This week:</h3>
+            <div id="this-week-section" class="booked-lesson-container"></div>
+
+            <h3 class="top-margin">Next week:</h3>
+            <div id="next-week-section" class="booked-lesson-container""></div>
+
             <div class="large-top-margin align-center">
                 <a href="/"><< Log out</a>
             </div>
         </div>
     </body>
+
+    <script src="../js/common.js"></script>
     <script>
         document
             .getElementById("login-form")
@@ -56,31 +63,79 @@
                 const name = document.getElementById("name").value.trim();
                 const matric = Number(document.getElementById("matric").value);
 
-                const response = await fetch("/pupils/verify", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
+                let result;
+
+                try {
+                    result = await makePostRequest("/pupils/verify", {
                         name: name,
-                        matric: matric
-                    })
-                });
-
-                console.log(response);
-
-                if (!response.ok) {
+                        matric: matric,
+                    });
+                } catch (error) {
                     alert("Verification failed.");
+                    return;
                 }
-
-                const result = await response.json();
 
                 if (result.valid) {
-                  document.getElementById("login").hidden = true;
-                  document.getElementById("dashboard").hidden = false;
+                    window.name = result.name;
+                    window.matric = result.matric;
+                    window.age = result.age;
+
+                    document.getElementById("login").hidden = true;
+                    document.getElementById("dashboard").hidden = false;
+                    await renderDashboard();
                 } else {
-                    alert("Incorrect login details. Check your name and matriculation number.")
+                    alert(
+                        "Incorrect login details. Check your name and matriculation number.",
+                    );
+                    return;
                 }
             });
+
+        async function renderDashboard() {
+          const thisWeekSection = document.getElementById("this-week-section");
+          const nextWeekSection = document.getElementById("next-week-section");
+
+          thisWeekSection.innerHTML = "";
+          nextWeekSection.innerHTML = "";
+
+          const lessonsThisWeek = await makeGetRequest(`/bookings/this-week?matric=${window.matric}`)
+          const lessonsNextWeek = await makeGetRequest(`/bookings/next-week?matric=${window.matric}`)
+
+          for (const lesson of lessonsThisWeek) {
+            thisWeekSection.innerHTML += bookedLessonHTML(lesson);
+          }
+
+          for (const lesson of lessonsNextWeek) {
+            nextWeekSection.innerHTML += bookedLessonHTML(lesson);
+          }
+        }
+
+        function bookedLessonHTML(lesson) {
+          const startDate = new Date(lesson.startDateTime);
+          const endDate = new Date(startDate);
+
+          endDate.setMinutes(endDate.getMinutes() + 30);
+
+          const date = startDate.toLocaleDateString("en-GB");
+          const start = startDate.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit"
+          });
+          const end = endDate.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit"
+          });
+
+          return `
+            <div class="booked-lesson">
+              <h4 class="capitalize">${lesson.instrument}</h4>
+              <ul>
+                <li>${date}</li>
+                <li>${start} - ${end}</li>
+                <li>tutor: ${lesson.tutor.firstName} ${lesson.tutor.lastName}</li>
+              </ul>
+            </div>
+          `
+        }
     </script>
 </html>
