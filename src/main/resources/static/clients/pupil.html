@@ -86,12 +86,13 @@
                         matric: matric,
                     });
                 } catch (error) {
+                    console.log(error);
                     alert("Verification failed.");
                     return;
                 }
 
                 if (result.valid) {
-                    window.name = result.name;
+                    window.pupilName = result.name;
                     window.matric = result.matric;
                     window.age = result.age;
                     window.instruments = result.instruments;
@@ -126,8 +127,16 @@
             thisWeekSection.innerHTML += bookedLessonHTML(lesson);
           }
 
+          if (thisWeekSection.innerHTML === "") {
+            thisWeekSection.innerHTML = "You have no lessons booked this week."
+          }
+
           for (const lesson of lessonsNextWeek) {
             nextWeekSection.innerHTML += bookedLessonHTML(lesson, true);
+          }
+
+          if (nextWeekSection.innerHTML === "") {
+            nextWeekSection.innerHTML = "You have no lessons booked next week."
           }
 
           for (const instrument of Object.keys(window.instruments)) {
@@ -225,6 +234,12 @@
         }
 
         document.getElementById("show-timetable-button").addEventListener("click", () => {
+          const instrumentSelect = document.getElementById("instrument-select");
+          const tutorSelect = document.getElementById("tutor-select");
+
+          window.timetableInstrument = instrumentSelect.value;
+          window.timetableTutor = tutorSelect.value;
+
           showTutorTimetable();
         });
 
@@ -233,27 +248,85 @@
 
           tutorTimetable.innerHTML = "";
 
-          const weekDays = getWeekDays();
-          for (let i = 0; i < weekDays.length; i++) {
-            tutorTimetable.innerHTML += await getDayTimetableHTML(weekDays[i]);
+          for (let i = 0; i < 7; i++) {
+            tutorTimetable.innerHTML += await getDayTimetableHTML(i);
           }
         }
 
-        async function getDayTimetableHTML(weekDay) {
+        async function getDayTimetableHTML(dayIndex) {
+          const time = getNextMonday();
+          time.setDate(time.getDate() + dayIndex)
+          time.setHours(9, 0, 0, 0);
+
+          const formattedDay = time.toLocaleDateString("en-GB", {
+            weekday: "long"
+          });
+
           timeslots = "";
           for (let i = 0; i < 22; i++) {
+            const formattedTime = time.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+
+            const backendTimeString = time.toLocaleString("sv-SE").replace(" ", "T");
+
             timeslots += `
-            <div class="timeslot">
-            </div>
-            `
+                <div class="timeslot" onclick="bookLesson('${backendTimeString}')" style='cursor: pointer;'">
+                    ${formattedTime}<br>
+                    FREE
+                </div>
+            `;
+
+            time.setMinutes(time.getMinutes() + 30);
           }
 
           return `
-            <h3 class="top-margin">${weekDay}</h3>
+            <h3 class="top-margin">${formattedDay}</h3>
             <div class="timeslot-container">
               ${timeslots}
             </div>
           `;
+        }
+
+        async function bookLesson(timeString) {
+          const date = new Date(timeString);
+
+          const humanReadableTime = date.toLocaleString("en-GB", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              hour: "2-digit",
+              minute: "2-digit"
+          });
+
+          if (!confirm(`Are you sure you want to book ${window.timetableInstrument} at ${humanReadableTime}?`)) {
+              return;
+          }
+
+          console.log({
+            tutorId: window.timetableTutor,
+            pupilMatric: window.matric,
+            pupilName: window.pupilName,
+            instrument: window.timetableInstrument,
+            startDateTime: timeString,
+          });
+
+          try {
+              await makePostRequest("/bookings/new", {
+                tutorId: Number(window.timetableTutor),
+                pupilMatric: window.matric,
+                pupilName: window.pupilName,
+                instrument: window.timetableInstrument,
+                startDateTime: timeString,
+              });
+          } catch (error) {
+              alert("Failed booking lesson.");
+              return;
+          }
+
+          renderDashboard();
+          updateBookingSection();
         }
     </script>
 </html>

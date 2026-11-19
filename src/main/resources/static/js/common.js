@@ -69,20 +69,8 @@ async function canTutorTeachPupilInstrument(
 function getNextMonday() {
   var date = new Date();
 
-  date.setDate(d.getDate() + ((1 + 7 - date.getDay()) % 7 || 7));
+  date.setDate(date.getDate() + ((1 + 7 - date.getDay()) % 7 || 7));
   date.setHours(0, 0, 0, 0);
 
   return date;
-}
-
-function getWeekDays() {
-  return [
-    "Monday",
-    "Tuesday",
-    "Wednsesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
 }
