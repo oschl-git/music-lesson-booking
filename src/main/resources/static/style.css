@@ -1,0 +1,52 @@
+@import url("https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+html {
+    background-color: #3b3833;
+    color: #f0ecc9;
+    font-family: "Cousine", monospace;
+    font-weight: 400;
+}
+
+a {
+    color: #058789;
+}
+
+a:hover {
+    color:  #e3a72f;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.top-margin {
+    margin-top: 2rem;
+}
+
+.bottom-margin {
+    margin-bottom: 2rem;
+}
+
+.large-top-margin {
+    margin-top: 5rem;
+}
+
+.large-bottom-margin {
+    margin-bottom: 5rem;
+}
+
+.role-selection-link {
+    display: inline-block;
+    text-align: center;
+    background-color: #058789;
+    margin: 1rem;
+    padding: 1rem;
+
+    a {
+        color: #f0ecc9;
+    }
+
+    a:hover {
+        color:  #e3a72f;
+    }
+}

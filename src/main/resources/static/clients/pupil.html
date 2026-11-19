@@ -1,11 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Pupil / Parent Booking</title>
-</head>
-<body>
-    <h1>Pupil/Parent</h1>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Music Lesson Booking Service | Pupil / Parent</title>
+        <link rel="stylesheet" href="../style.css" />
+    </head>
+    <body>
+        <div id="login">
+            <h1 class="align-center large-top-margin">Pupil Login</h1>
+
+            <p class="align-center large-top-margin bottom-margin">
+                To access, enter your full name and matriculation number.
+            </p>
+
+            <form id="login-form" class="align-center">
+                <div>
+                    <label for="name">Full name:</label>
+                    <input type="text" id="name" name="name" required />
+                </div>
+
+                <div>
+                    <label for="matric">Matriculation number:</label>
+                    <input type="number" id="matric" name="matric" required />
+                </div>
+
+                <button class="top-margin" type="submit">Log in</button>
+
+                <div class="large-top-margin">
+                    <a href="/"><< Back to role selection</a>
+                </div>
+
+            </form>
+        </div>
+        <div id="dashboard" hidden>
+            <h1 class="align-center large-top-margin">Pupil Dashboard</h1>
+
+            <p class="align-center top-margin bottom-margin">
+                View your booked lessons for this week, and book lessons for next week below.
+            </p>
+
+            <h2>Booked lessons this week:</h2>
+            <h2>Book lessons for next week:</h2>
+            <div class="large-top-margin align-center">
+                <a href="/"><< Log out</a>
+            </div>
+        </div>
+    </body>
+    <script>
+        document
+            .getElementById("login-form")
+            .addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const name = document.getElementById("name").value.trim();
+                const matric = Number(document.getElementById("matric").value);
+
+                const response = await fetch("/pupils/verify", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        matric: matric
+                    })
+                });
+
+                console.log(response);
+
+                if (!response.ok) {
+                    alert("Verification failed.");
+                }
+
+                const result = await response.json();
+
+                if (result.valid) {
+                  document.getElementById("login").hidden = true;
+                  document.getElementById("dashboard").hidden = false;
+                } else {
+                    alert("Incorrect login details. Check your name and matriculation number.")
+                }
+            });
+    </script>
 </html>
