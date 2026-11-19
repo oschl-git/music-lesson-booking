@@ -79,6 +79,24 @@ button {
     padding: 0.4rem;
 }
 
+select {
+    background-color: #0b0bf4;
+    color: white;
+    padding: 0.4rem;
+    width: 15rem;
+}
+
 .cancel-button {
     background-color: red;
+}
+
+.timeslot-container {
+    display: flex;
+}
+
+.timeslot {
+    flex: 1;
+    height: 3rem;
+    background-color: green;
+    border: solid black;
 }

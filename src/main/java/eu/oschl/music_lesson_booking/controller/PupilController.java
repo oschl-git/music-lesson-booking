@@ -3,7 +3,6 @@ package eu.oschl.music_lesson_booking.controller;
 import eu.oschl.music_lesson_booking.dto.PupilVerificationRequest;
 import eu.oschl.music_lesson_booking.dto.PupilVerificationResponse;
 import eu.oschl.music_lesson_booking.service.PupilService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,12 +29,24 @@ public class PupilController {
         try {
             var pupil = this.pupilService.getPupilByMatric(body.matric());
 
-            if (pupil.matric() == body.matric() && pupil.name().equals(body.name())) {
-                return ResponseEntity.ok(new PupilVerificationResponse(true, pupil.name(), pupil.matric(), pupil.age()));
+            if (
+                pupil.matric() == body.matric() &&
+                pupil.name().equals(body.name())
+            ) {
+                return ResponseEntity.ok(
+                    new PupilVerificationResponse(
+                        true,
+                        pupil.name(),
+                        pupil.matric(),
+                        pupil.age(),
+                        pupil.instruments()
+                    )
+                );
             }
-        } catch (HttpClientErrorException.NotFound exception) {
-        }
+        } catch (HttpClientErrorException.NotFound exception) {}
 
-        return ResponseEntity.ok(new PupilVerificationResponse(false, null, null, null));
+        return ResponseEntity.ok(
+            new PupilVerificationResponse(false, null, null, null, null)
+        );
     }
 }

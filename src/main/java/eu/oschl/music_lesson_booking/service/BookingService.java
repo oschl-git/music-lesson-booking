@@ -118,7 +118,7 @@ public class BookingService {
 
         var tutor = booking.getTutor();
 
-        if (!isTutorAvailableInTimeslot(booking.getStartDateTime(), tutor)) {
+        if (!tutorService.isTutorAvailableInTimeslot(booking.getStartDateTime(), tutor)) {
             return false;
         }
 
@@ -141,7 +141,7 @@ public class BookingService {
         }
 
         if (
-            !this.canTutorTeachPupilInstrument(
+            !tutorService.canTutorTeachPupilInstrument(
                 booking.getInstrument(),
                 tutor,
                 pupil
@@ -196,63 +196,6 @@ public class BookingService {
         }
 
         return false;
-    }
-
-    private boolean canTutorTeachPupilInstrument(
-        String instrument,
-        Tutor tutor,
-        Pupil pupil
-    ) {
-        var pupilInstrument = pupil.instruments().get(instrument);
-
-        if (pupilInstrument == null) {
-            return false;
-        }
-
-        Instrument tutorInstrument = null;
-        for (var singleInstrument : tutor.getInstruments()) {
-            if (singleInstrument.getInstrument().equals(instrument)) {
-                tutorInstrument = singleInstrument;
-                break;
-            }
-        }
-
-        if (tutorInstrument == null) {
-            return false;
-        }
-
-        if (
-            pupilInstrument.grade() < tutorInstrument.getMinLevel() ||
-            pupilInstrument.grade() > tutorInstrument.getMaxLevel()
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isTutorAvailableInTimeslot(
-        LocalDateTime startDateTime,
-        Tutor tutor
-    ) {
-        var tutorUnavailabilities = tutor.getTutorUnavailabilities();
-
-        for (TutorUnavailability tutorUnavailability : tutorUnavailabilities) {
-            if (
-                startDateTime
-                    .plusMinutes(30)
-                    .isAfter(tutorUnavailability.getStartTime()) &&
-                startDateTime.isBefore(tutorUnavailability.getEndTime())
-            ) {
-                return false;
-            }
-        }
-
-        if (bookings.existsByTutorAndStartDateTime(tutor, startDateTime)) {
-            return false;
-        }
-
-        return true;
     }
 
     private boolean isNextWeek(LocalDateTime startDateTime) {

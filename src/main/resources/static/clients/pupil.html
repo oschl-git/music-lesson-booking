@@ -47,6 +47,21 @@
             <h3 class="top-margin">Next week:</h3>
             <div id="next-week-section" class="booked-lesson-container""></div>
 
+            <h2>Book lessons for next week</h2>
+
+            <div>
+                <select id="instrument-select">
+                    <option value="">Select an instrument</option>
+                </select>
+
+                <select id="tutor-select">
+                    <option value="">Select a tutor</option>
+                </select>
+                <button id="show-timetable-button">Show available times</button>
+            </div>
+            <div id="tutor-timetable">
+
+            </div>
             <div class="large-top-margin align-center">
                 <a href="/"><< Log out</a>
             </div>
@@ -79,10 +94,15 @@
                     window.name = result.name;
                     window.matric = result.matric;
                     window.age = result.age;
+                    window.instruments = result.instruments;
+
+                    window.tutors = await makeGetRequest(`/tutors/eligible?pupilMatric=${result.matric}`);
 
                     document.getElementById("login").hidden = true;
                     document.getElementById("dashboard").hidden = false;
+
                     await renderDashboard();
+                    await updateBookingSection();
                 } else {
                     alert(
                         "Incorrect login details. Check your name and matriculation number.",
@@ -94,6 +114,7 @@
         async function renderDashboard() {
           const thisWeekSection = document.getElementById("this-week-section");
           const nextWeekSection = document.getElementById("next-week-section");
+          const instrumentSelect = document.getElementById("instrument-select");
 
           thisWeekSection.innerHTML = "";
           nextWeekSection.innerHTML = "";
@@ -107,6 +128,15 @@
 
           for (const lesson of lessonsNextWeek) {
             nextWeekSection.innerHTML += bookedLessonHTML(lesson, true);
+          }
+
+          for (const instrument of Object.keys(window.instruments)) {
+            const option = document.createElement("option");
+
+            option.value = instrument;
+            option.textContent = instrument;
+
+            instrumentSelect.appendChild(option);
           }
         }
 
@@ -123,6 +153,7 @@
 
             renderDashboard();
         }
+
         function bookedLessonHTML(lesson, allowCancel = false) {
           const startDate = new Date(lesson.startDateTime);
           const endDate = new Date(startDate);
@@ -160,6 +191,69 @@
           html += "</div>"
 
           return html;
+        }
+
+        document.getElementById("tutor-select").addEventListener("change", updateBookingSection);
+        document.getElementById("instrument-select").addEventListener("change", updateBookingSection);
+
+        async function updateBookingSection() {
+          const instrumentSelect = document.getElementById("instrument-select");
+          const tutorSelect = document.getElementById("tutor-select");
+
+          const selectedTutor = tutorSelect.value;
+
+          tutorSelect.innerHTML = '<option value="">Select a tutor</option>';
+
+          for (const tutor of window.tutors) {
+            if (instrumentSelect.value !== "" && !(await canTutorTeachPupilInstrument(instrumentSelect.value, tutor, window.instruments))) {
+              continue;
+            }
+
+            const option = document.createElement("option");
+
+            option.value = tutor.id;
+            option.textContent = tutor.firstName + " " + tutor.lastName;
+
+            tutorSelect.appendChild(option);
+          }
+
+          tutorSelect.value = selectedTutor;
+
+          if (tutorSelect.selectedIndex === -1) {
+              tutorSelect.value = "";
+          }
+        }
+
+        document.getElementById("show-timetable-button").addEventListener("click", () => {
+          showTutorTimetable();
+        });
+
+        async function showTutorTimetable() {
+          const tutorTimetable = document.getElementById("tutor-timetable");
+
+          tutorTimetable.innerHTML = "";
+
+          const weekDays = getWeekDays();
+          for (let i = 0; i < weekDays.length; i++) {
+            tutorTimetable.innerHTML += await getDayTimetableHTML(weekDays[i]);
+          }
+        }
+
+        async function getDayTimetableHTML(weekDay) {
+          timeslots = "";
+          for (let i = 0; i < 22; i++) {
+            timeslots += `
+            <div class="timeslot">
+            </div>
+            `
+          }
+
+          return `
+            <h3 class="top-margin">${weekDay}</h3>
+            <div class="timeslot-container">
+              ${timeslots}
+            </div>
+          `;
         }
     </script>
 </html>
