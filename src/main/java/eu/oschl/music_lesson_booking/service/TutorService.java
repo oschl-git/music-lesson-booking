@@ -7,6 +7,7 @@ import eu.oschl.music_lesson_booking.database.repository.BookingRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorUnavailabilityRepository;
 import eu.oschl.music_lesson_booking.dto.Pupil;
+import eu.oschl.music_lesson_booking.dto.TutorRequest;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,21 +21,49 @@ public class TutorService {
     private final BookingRepository bookings;
     private final PupilService pupilService;
     private final TutorUnavailabilityRepository tutorUnavailabilities;
+    private final AuthService authService;
 
     public TutorService(
         TutorRepository tutors,
         BookingRepository bookings,
         PupilService pupilService,
-        TutorUnavailabilityRepository tutorUnavailabilities
+        TutorUnavailabilityRepository tutorUnavailabilities,
+        AuthService authService
     ) {
         this.tutors = tutors;
         this.bookings = bookings;
         this.pupilService = pupilService;
         this.tutorUnavailabilities = tutorUnavailabilities;
+        this.authService = authService;
+    }
+
+    public Tutor createTutor(TutorRequest request) {
+        var passwordHash = this.authService.generateDatabasePasswordString(request.password());
+
+        var tutor = new Tutor(
+            request.username(),
+            passwordHash,
+            request.firstName(),
+            request.lastName()
+        );
+
+        tutor = this.tutors.save(tutor);
+
+        return tutor;
     }
 
     public Tutor getTutorById(Long id) {
         return tutors.findById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public Tutor getTutorByUsername(String username) {
+        var tutor = tutors.findOneByUsername(username);
+
+        if (tutor == null) {
+            throw new EntityNotFoundException();
+        }
+
+        return tutor;
     }
 
     public List<Tutor> getEligibleTutors(int pupilMatric, String instrument) {

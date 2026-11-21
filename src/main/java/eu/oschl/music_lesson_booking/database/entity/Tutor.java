@@ -1,5 +1,6 @@
 package eu.oschl.music_lesson_booking.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,8 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Tutor {
@@ -37,7 +36,14 @@ public class Tutor {
 
     protected Tutor() {}
 
-    public Tutor(String firstName, String lastName) {
+    public Tutor(
+        String username,
+        String passwordHash,
+        String firstName,
+        String lastName
+    ) {
+        this.username = username;
+        this.passwordHash = passwordHash;
         this.firstName = firstName;
         this.lastName = lastName;
     }
@@ -46,14 +52,14 @@ public class Tutor {
         return id;
     }
 
-   	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	@JsonIgnore
-	public String getPasswordHash() {
-		return passwordHash;
-	}
+    @JsonIgnore
+    public String getPasswordHash() {
+        return passwordHash;
+    }
 
     public String getFirstName() {
         return firstName;
