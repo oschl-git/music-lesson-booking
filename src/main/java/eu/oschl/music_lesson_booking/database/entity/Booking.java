@@ -1,5 +1,6 @@
 package eu.oschl.music_lesson_booking.database.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,8 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Booking {
@@ -21,8 +20,13 @@ public class Booking {
     @JoinColumn(name = "tutor_id", nullable = false)
     private Tutor tutor;
 
+    @Column(nullable = false)
     private String instrument;
+
+    @Column(nullable = false)
     private int pupilMatric;
+
+    @Column(nullable = false)
     private LocalDateTime startDateTime;
 
     protected Booking() {}

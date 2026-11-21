@@ -2,6 +2,7 @@ package eu.oschl.music_lesson_booking.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,8 +21,13 @@ public class Instrument {
     @JoinColumn(name = "tutor_id", nullable = false)
     private Tutor tutor;
 
+    @Column(nullable = false)
     private String instrument;
+
+    @Column(nullable = false)
     private int minLevel;
+
+    @Column(nullable = false)
     private int maxLevel;
 
     protected Instrument() {}
