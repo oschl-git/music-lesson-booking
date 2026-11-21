@@ -1,12 +1,185 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tutor Booking</title>
-	<link rel="stylesheet" href="../style.css">
-</head>
-<body>
-    <h1>Tutor</h1>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Music Lesson Booking Service | Tutor</title>
+        <link rel="stylesheet" href="../style.css" />
+    </head>
+    <body>
+        <div id="login">
+            <h1 class="align-center top-margin">Tutor Login</h1>
+            <p class="align-center large-top-margin bottom-margin">
+                To access, enter your username and password.
+            </p>
+
+            <form id="login-form" class="align-center">
+                <div>
+                    <label for="name">Username:</label>
+                    <input type="text" id="username" name="username" required />
+                </div>
+
+                <div>
+                    <label for="matric">Password:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                    />
+                </div>
+
+                <button class="top-margin" type="submit" id="log-in-button">
+                    Log in
+                </button>
+
+                <div class="large-top-margin">
+                    <a href="/"><< Back to role selection</a>
+                </div>
+            </form>
+        </div>
+        <div id="dashboard" hidden>
+            <h1 class="align-center top-margin">Tutor Dashboard</h1>
+            <p id="logged-in-details" class="align-center italic"></p>
+            <p class="align-center top-margin bottom-margin bold">
+                On this page, you can view upcoming bookings from your pupils, and set when you're unavailable.
+            </p>
+
+            <h2>Upcoming lessons</h2>
+            <h3>This week:</h3>
+            <div id="this-week-section" class="booked-lesson-container"></div>
+
+            <h3 class="top-margin">Next week:</h3>
+            <div id="next-week-section" class="booked-lesson-container""></div>
+
+            <h2>Periods of unavailability</h2>
+            <p>Set up periods when you're unavailable. Pupils will not be able to book lessons during these times.</p>
+
+            <h3>Create new period of unavailability</h3>
+            <input type="datetime-local" id="start-datetime" required>
+            <input type="datetime-local" id="end-datetime" required>
+            <button class="create-new-period-button">Create new period</button>
+
+            <div class="large-top-margin large-bottom-margin align-center">
+                <a href="/"><< Log out</a>
+            </div>
+        </div>
+
+        <script src="../js/common.js"></script>
+        <script>
+            document
+                .getElementById("login-form")
+                .addEventListener("submit", async (event) => {
+                    event.preventDefault();
+
+                    const logInButton = document.getElementById("log-in-button");
+                    logInButton.disabled = true;
+
+                    const username = document.getElementById("username").value.trim();
+                    const password = document.getElementById("password").value.trim();
+
+                    let result;
+
+                    try {
+                        result = await makePostRequest("/tutors/verify", {
+                            username: username,
+                            password: password,
+                        });
+                    } catch (error) {
+                        alert("Verification failed.");
+                        return;
+                    }
+
+                    if (result.valid) {
+                        window.id = result.id;
+                        window.username = result.username;
+                        window.firstName = result.firstName;
+                        window.lastName = result.lastName;
+
+                        document.getElementById("login").hidden = true;
+                        document.getElementById("dashboard").hidden = false;
+
+                        const loggedInDetailsElement =
+                            document.getElementById("logged-in-details");
+
+                        loggedInDetailsElement.innerHTML = `Logged in tutor: ${window.firstName} ${window.lastName} (username: ${window.username})`;
+
+                        await renderDashboard();
+                    } else {
+                        alert(
+                            "Incorrect login details. Check your username and password.",
+                        );
+
+                        logInButton.disabled = false;
+                        return;
+                    }
+                });
+
+            async function renderDashboard() {
+                const thisWeekSection = document.getElementById("this-week-section");
+                const nextWeekSection = document.getElementById("next-week-section");
+
+                thisWeekSection.innerHTML = "";
+                nextWeekSection.innerHTML = "";
+
+                const lessonsThisWeek = await makeGetRequest(`/bookings/this-week/tutor?tutorId=${window.id}`)
+                const lessonsNextWeek = await makeGetRequest(`/bookings/next-week/tutor?tutorId=${window.id}`)
+
+                window.lessonsNextWeek = lessonsNextWeek;
+
+                for (const lesson of lessonsThisWeek) {
+                    thisWeekSection.innerHTML += bookedLessonHTML(lesson);
+                }
+
+                if (thisWeekSection.innerHTML === "") {
+                    thisWeekSection.innerHTML = "There are no lessons to teach this week."
+                }
+
+                for (const lesson of lessonsNextWeek) {
+                    nextWeekSection.innerHTML += bookedLessonHTML(lesson);
+                }
+
+                if (nextWeekSection.innerHTML === "") {
+                    nextWeekSection.innerHTML = "There are no lessons to teach next week."
+                }
+            }
+
+            function bookedLessonHTML(lesson) {
+                const startDate = new Date(lesson.startDateTime);
+                const endDate = new Date(startDate);
+
+                endDate.setMinutes(endDate.getMinutes() + 30);
+
+                const date = startDate.toLocaleDateString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                });
+
+                const start = startDate.toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                const end = endDate.toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                let html = `
+                <div class="booked-lesson">
+                  <h4 class="capitalize">${lesson.instrument}</h4>
+                  <ul>
+                    <li>${date}</li>
+                    <li>${start} - ${end}</li>
+                    <li>pupil matriculation number: ${lesson.pupilMatric}</li>
+                  </ul>
+                </div>
+                `;
+
+                return html;
+            }
+        </script>
+    </body>
 </html>

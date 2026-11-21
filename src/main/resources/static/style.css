@@ -11,6 +11,10 @@ html {
     font-weight: 400;
 }
 
+body {
+    padding: 3rem;
+}
+
 a {
     color: #00a8a8;
 }

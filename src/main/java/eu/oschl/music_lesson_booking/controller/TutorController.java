@@ -44,6 +44,7 @@ public class TutorController {
             return ResponseEntity.ok(
                 new TutorVerificationResponse(
                     true,
+                    tutor.getId(),
                     tutor.getUsername(),
                     tutor.getFirstName(),
                     tutor.getLastName()
@@ -52,7 +53,7 @@ public class TutorController {
         }
 
         return ResponseEntity.ok(
-            new TutorVerificationResponse(false, null, null, null)
+            new TutorVerificationResponse(false, null, null, null, null)
         );
     }
 

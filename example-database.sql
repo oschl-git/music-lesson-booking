@@ -1,3 +1,4 @@
+-- All passwords are 12345678
 INSERT INTO tutor (username, password_hash, first_name, last_name) VALUES
     ('robkoub', '58a886dd0baaed952b1e9365313136fabf54a27792e4040f705623b288da3ee044f32327f77eb7b08d467e6c89a86a3e93e91607daf21b903061e516a74d9ca04f33a3d466ba701c081dc8869380315d', 'Robert', 'Koubek'),
     ('robpatt', 'df38692f0520bc1b6cd73f379b076badcae58a94937561b58630d9ce2c3046c867d7e69039527c7c6ddd63464dfd06fb3a3b53ff82accadffdb12e1a86411216ce1f1d46d6c6137fe31ca5b2390f7aca', 'Robert', 'Pattinson'),

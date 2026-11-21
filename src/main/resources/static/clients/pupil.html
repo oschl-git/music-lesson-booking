@@ -8,7 +8,7 @@
     </head>
     <body>
         <div id="login">
-            <h1 class="align-center large-top-margin">Pupil Login</h1>
+            <h1 class="align-center top-margin">Pupil Login</h1>
             <p class="align-center large-top-margin bottom-margin">
                 To access, enter your full name and matriculation number.
             </p>
@@ -32,7 +32,7 @@
             </form>
         </div>
         <div id="dashboard" hidden>
-            <h1 class="align-center large-top-margin">Pupil Dashboard</h1>
+            <h1 class="align-center top-margin">Pupil Dashboard</h1>
 
             <p id="logged-in-details" class="align-center italic"></p>
             <p class="align-center top-margin bottom-margin bold">
@@ -59,9 +59,7 @@
                 </select>
                 <button id="show-timetable-button">Show available times</button>
             </div>
-            <div id="tutor-timetable">
-
-            </div>
+            <div id="tutor-timetable"></div>
             <div class="large-top-margin large-bottom-margin align-center">
                 <a href="/"><< Log out</a>
             </div>
@@ -75,7 +73,8 @@
         .addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            document.getElementById("log-in-button").disabled = true;
+            const logInButton = document.getElementById("log-in-button");
+            logInButton.disabled = true;
 
             const name = document.getElementById("name").value.trim();
             const matric = Number(document.getElementById("matric").value);
@@ -113,6 +112,9 @@
                 alert(
                     "Incorrect login details. Check your name and matriculation number.",
                 );
+
+                logInButton.disabled = false;
+
                 return;
             }
         });
