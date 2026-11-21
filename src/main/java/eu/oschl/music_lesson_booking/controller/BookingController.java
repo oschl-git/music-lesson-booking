@@ -44,13 +44,23 @@ public class BookingController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/this-week")
+    @GetMapping("/this-week/pupil")
     public List<Booking> getThisWeekBookingsForPupil(@RequestParam int matric) {
         return bookingService.getThisWeekBookingsForPupil(matric);
     }
 
-    @GetMapping("/next-week")
+    @GetMapping("/next-week/pupil")
     public List<Booking> getNextWeekBookingsForPupil(@RequestParam int matric) {
         return bookingService.getNextWeekBookingsForPupil(matric);
+    }
+
+    @GetMapping("/this-week/tutor")
+    public List<Booking> getThisWeekBookingsForTutor(@RequestParam Long tutorId) {
+        return bookingService.getThisWeekBookingsForTutor(tutorId);
+    }
+
+    @GetMapping("/next-week/tutor")
+    public List<Booking> getNextWeekBookingsForTutor(@RequestParam Long tutorId) {
+        return bookingService.getNextWeekBookingsForTutor(tutorId);
     }
 }

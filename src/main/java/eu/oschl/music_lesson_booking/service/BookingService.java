@@ -102,6 +102,20 @@ public class BookingService {
         return this.bookings.findBookingsForPupilInRange(matric, start.atStartOfDay(), end.atStartOfDay());
     }
 
+    public List<Booking> getThisWeekBookingsForTutor(Long tutorId) {
+        var end = getNextMonday();
+        var start = end.minusDays(7);
+
+        return this.bookings.findBookingsForTutorInRange(tutorId, start.atStartOfDay(), end.atStartOfDay());
+    }
+
+    public List<Booking> getNextWeekBookingsForTutor(Long tutorId) {
+        var start = getNextMonday();
+        var end = start.plusDays(7);
+
+        return this.bookings.findBookingsForTutorInRange(tutorId, start.atStartOfDay(), end.atStartOfDay());
+    }
+
     private boolean isBookingValid(Booking booking, String pupilName) {
         if (
             isOutsideAllowedTimeslots(

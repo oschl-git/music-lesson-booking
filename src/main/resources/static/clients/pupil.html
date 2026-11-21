@@ -119,8 +119,8 @@
           thisWeekSection.innerHTML = "";
           nextWeekSection.innerHTML = "";
 
-          const lessonsThisWeek = await makeGetRequest(`/bookings/this-week?matric=${window.matric}`)
-          const lessonsNextWeek = await makeGetRequest(`/bookings/next-week?matric=${window.matric}`)
+          const lessonsThisWeek = await makeGetRequest(`/bookings/this-week/pupil?matric=${window.matric}`)
+          const lessonsNextWeek = await makeGetRequest(`/bookings/next-week/pupil?matric=${window.matric}`)
 
           window.lessonsNextWeek = lessonsNextWeek;
 
@@ -259,12 +259,15 @@
 
           tutorTimetable.innerHTML = "";
 
+          const tutorUnavailabilities = await makeGetRequest(`/tutors/unavailabilities/upcoming?tutorId=${window.timetableTutor}`);
+          const tutorBookings = await makeGetRequest(`/bookings/next-week/tutor?tutorId=${window.timetableTutor}`);
+
           for (let i = 0; i < 7; i++) {
-            tutorTimetable.innerHTML += await getDayTimetableHTML(i);
+            tutorTimetable.innerHTML += await getDayTimetableHTML(i, tutorUnavailabilities, tutorBookings);
           }
         }
 
-        async function getDayTimetableHTML(dayIndex) {
+        async function getDayTimetableHTML(dayIndex, tutorUnavailabilities, tutorBookings) {
           const time = getNextMonday();
           time.setDate(time.getDate() + dayIndex)
           time.setHours(9, 0, 0, 0);
@@ -286,11 +289,41 @@
               isValidSlot = false;
             } else if (time.getDay() !== 6 && (time.getHours() < 16 || time.getHours() > 20)) {
               isValidSlot = false;
+            } else if (window.age <=16 && time.getHours() >= 18) {
+              isValidSlot = false;
             }
 
-            for (lesson of window.lessonsNextWeek) {
-              if ((new Date(lesson.startDateTime)).toDateString() === time.toDateString()) {
-                isValidSlot = false;
+            if (isValidSlot) {
+              for (lesson of window.lessonsNextWeek) {
+                if ((new Date(lesson.startDateTime)).toDateString() === time.toDateString()) {
+                  isValidSlot = false;
+                }
+              }
+            }
+
+            if (isValidSlot) {
+              for (const unavailability of tutorUnavailabilities) {
+                  const start = new Date(unavailability.startTime);
+                  const end = new Date(unavailability.endTime);
+
+                  const slotEnd = new Date(time);
+                  slotEnd.setMinutes(slotEnd.getMinutes() + 30);
+
+                  if (time < end && slotEnd > start) {
+                      isValidSlot = false;
+                      break;
+                  }
+              }
+            }
+
+            if (isValidSlot) {
+              for (const booking of tutorBookings) {
+                  const start = new Date(booking.startDateTime);
+
+                  if (time.getTime() === start.getTime()) {
+                    isValidSlot = false;
+                    break;
+                  }
               }
             }
 
