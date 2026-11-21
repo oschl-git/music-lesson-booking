@@ -124,3 +124,13 @@ select {
 .italic {
     font-style: italic;
 }
+
+.unavailability {
+    width: 100%;
+    background-color: black;
+    color: white;
+    padding: 0.5rem;
+    padding-left: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+}

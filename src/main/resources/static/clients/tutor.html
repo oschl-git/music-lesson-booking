@@ -52,13 +52,14 @@
             <h3 class="top-margin">Next week:</h3>
             <div id="next-week-section" class="booked-lesson-container""></div>
 
-            <h2>Periods of unavailability</h2>
+            <h2 class="large-top-margin">Periods of unavailability</h2>
             <p>Set up periods when you're unavailable. Pupils will not be able to book lessons during these times.</p>
 
-            <h3>Create new period of unavailability</h3>
             <input type="datetime-local" id="start-datetime" required>
             <input type="datetime-local" id="end-datetime" required>
             <button class="create-new-period-button">Create new period</button>
+
+            <div id="unavailabilities-section" class="booked-lesson-container top-margin"></div>
 
             <div class="large-top-margin large-bottom-margin align-center">
                 <a href="/"><< Log out</a>
@@ -92,9 +93,11 @@
 
                     if (result.valid) {
                         window.id = result.id;
-                        window.username = result.username;
+                        window.username = username;
                         window.firstName = result.firstName;
                         window.lastName = result.lastName;
+
+                        window.auth = createAuthString(username, password);
 
                         document.getElementById("login").hidden = true;
                         document.getElementById("dashboard").hidden = false;
@@ -105,6 +108,7 @@
                         loggedInDetailsElement.innerHTML = `Logged in tutor: ${window.firstName} ${window.lastName} (username: ${window.username})`;
 
                         await renderDashboard();
+                        await renderUnavailabilities();
                     } else {
                         alert(
                             "Incorrect login details. Check your username and password.",
@@ -179,6 +183,68 @@
                 `;
 
                 return html;
+            }
+
+            async function renderUnavailabilities() {
+              const unavailabilitiesSection = document.getElementById("unavailabilities-section");
+
+              unavailabilitiesSection.innerHTML = "";
+
+              const upcomingUnavailabilities = await makeGetRequest(`/tutors/unavailabilities/upcoming?tutorId=${window.id}`)
+
+              for (const unavailability of upcomingUnavailabilities) {
+                  unavailabilitiesSection.innerHTML += unavailabilityHTML(unavailability);
+              }
+            }
+
+            function unavailabilityHTML(unavailability) {
+                const start = new Date(unavailability.startTime);
+                const end = new Date(unavailability.endTime);
+
+                const startString = start.toLocaleString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                const endString = end.toLocaleString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                let html = `
+                <div class="unavailability">
+                  <h4>${startString} - ${endString}</h4>
+                  <button class="cancel-button" onclick="deleteUnavailability(${unavailability.id})">
+                      Free period
+                  </button>
+                </div>
+                `;
+
+                return html;
+            }
+
+            async function deleteUnavailability(unavailabilityId) {
+                if (!confirm("Are you sure you want to free this period?")) {
+                    return;
+                }
+
+                try {
+                    await makeDeleteRequest(`/tutors/unavailabilities/${unavailabilityId}`, window.auth);
+                } catch (error) {
+                    alert("Failed freeing up unavailability period.");
+                }
+
+                await renderUnavailabilities();
+            }
+
+            function createAuthString(username, password) {
+              return btoa(`${username}:${password}`);
             }
         </script>
     </body>

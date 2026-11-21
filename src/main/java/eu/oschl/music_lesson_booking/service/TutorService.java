@@ -8,11 +8,14 @@ import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorUnavailabilityRepository;
 import eu.oschl.music_lesson_booking.dto.Pupil;
 import eu.oschl.music_lesson_booking.dto.TutorRequest;
+import eu.oschl.music_lesson_booking.dto.TutorUnavailabilityRequest;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TutorService {
@@ -38,7 +41,9 @@ public class TutorService {
     }
 
     public Tutor createTutor(TutorRequest request) {
-        var passwordHash = this.authService.generateDatabasePasswordString(request.password());
+        var passwordHash = this.authService.generateDatabasePasswordString(
+            request.password()
+        );
 
         var tutor = new Tutor(
             request.username(),
@@ -154,5 +159,42 @@ public class TutorService {
             tutorId,
             LocalDateTime.now()
         );
+    }
+
+    public TutorUnavailability getUnavailabiltyById(Long unavailabilityId) {
+        return this.tutorUnavailabilities
+            .findById(unavailabilityId)
+            .orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+            );
+    }
+
+    public TutorUnavailability createTutorUnavailability(
+        TutorUnavailabilityRequest body
+    ) {
+        Tutor tutor;
+
+        try {
+            tutor = this.getTutorById(body.tutorId());
+        } catch (EntityNotFoundException exception) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Tutor with the provided ID does not exist"
+            );
+        }
+
+        var tutorUnavailability = new TutorUnavailability(
+            tutor,
+            body.startTime(),
+            body.endTime()
+        );
+
+        tutorUnavailability = tutorUnavailabilities.save(tutorUnavailability);
+
+        return tutorUnavailability;
+    }
+
+    public void deleteTutorUnavailability(Long tutorUnavailabilityId) {
+        this.tutorUnavailabilities.deleteById(tutorUnavailabilityId);
     }
 }

@@ -1,5 +1,6 @@
 package eu.oschl.music_lesson_booking.service;
 
+import eu.oschl.music_lesson_booking.database.entity.Tutor;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
 
 import java.nio.charset.StandardCharsets;
@@ -29,11 +30,11 @@ public class AuthService {
         return HexFormat.of().formatHex(salt) + HexFormat.of().formatHex(passwordHash);
     }
 
-    public boolean verifyTutorLogin(String username, String password) {
+    public Tutor verifyTutorLogin(String username, String password) {
         var tutor = this.tutors.findOneByUsername(username);
 
         if (tutor == null) {
-            return false;
+            return null;
         }
 
         byte[] storedSalt = HexFormat.of().parseHex(
@@ -46,7 +47,11 @@ public class AuthService {
 
         byte[] newHash = hashPassword(password, storedSalt);
 
-        return MessageDigest.isEqual(storedHash, newHash);
+        if (MessageDigest.isEqual(storedHash, newHash)) {
+            return tutor;
+        } else {
+            return null;
+        }
     }
 
     private byte[] hashPassword(String plaintext, byte[] salt) {

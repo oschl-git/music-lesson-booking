@@ -8,14 +8,27 @@ async function makeGetRequest(endpoint) {
   return await response.json();
 }
 
-async function makePostRequest(endpoint, body) {
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+async function makePostRequest(endpoint, body, auth = null) {
+  let response;
+
+  if (auth === null) {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } else {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${auth}`,
+      },
+      body: JSON.stringify(body),
+    });
+  }
 
   if (!response.ok) {
     throw new Error(`POST request failed: ${response.status}`);
@@ -24,10 +37,21 @@ async function makePostRequest(endpoint, body) {
   return await response.json();
 }
 
-async function makeDeleteRequest(endpoint) {
-  const response = await fetch(endpoint, {
-    method: "DELETE",
-  });
+async function makeDeleteRequest(endpoint, auth = null) {
+  let response;
+
+  if (auth === null) {
+    response = await fetch(endpoint, {
+      method: "DELETE",
+    });
+  } else {
+    response = await fetch(endpoint, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    });
+  }
 
   if (!response.ok) {
     throw new Error(`DELETE request failed: ${response.status}`);
