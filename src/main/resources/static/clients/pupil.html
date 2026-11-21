@@ -86,7 +86,6 @@
                         matric: matric,
                     });
                 } catch (error) {
-                    console.log(error);
                     alert("Verification failed.");
                     return;
                 }
@@ -122,6 +121,8 @@
 
           const lessonsThisWeek = await makeGetRequest(`/bookings/this-week?matric=${window.matric}`)
           const lessonsNextWeek = await makeGetRequest(`/bookings/next-week?matric=${window.matric}`)
+
+          window.lessonsNextWeek = lessonsNextWeek;
 
           for (const lesson of lessonsThisWeek) {
             thisWeekSection.innerHTML += bookedLessonHTML(lesson);
@@ -160,7 +161,8 @@
                 alert("Failed cancelling booking.");
             }
 
-            renderDashboard();
+            await renderDashboard();
+            await updateBookingSection();
         }
 
         function bookedLessonHTML(lesson, allowCancel = false) {
@@ -231,11 +233,20 @@
           if (tutorSelect.selectedIndex === -1) {
               tutorSelect.value = "";
           }
+
+          if (window.timetableInstrument && window.timetableTutor) {
+            showTutorTimetable();
+          }
         }
 
         document.getElementById("show-timetable-button").addEventListener("click", () => {
           const instrumentSelect = document.getElementById("instrument-select");
           const tutorSelect = document.getElementById("tutor-select");
+
+          if (instrumentSelect.value === "" || tutorSelect.value === "") {
+            alert("Instrument and tutor must be selected to show the booking timetable.")
+            return;
+          }
 
           window.timetableInstrument = instrumentSelect.value;
           window.timetableTutor = tutorSelect.value;
@@ -269,14 +280,37 @@
               minute: "2-digit"
             });
 
-            const backendTimeString = time.toLocaleString("sv-SE").replace(" ", "T");
+            let isValidSlot = true;
 
-            timeslots += `
-                <div class="timeslot" onclick="bookLesson('${backendTimeString}')" style='cursor: pointer;'">
-                    ${formattedTime}<br>
-                    FREE
-                </div>
-            `;
+            if (time.getDay() === 0) {
+              isValidSlot = false;
+            } else if (time.getDay() !== 6 && (time.getHours() < 16 || time.getHours() > 20)) {
+              isValidSlot = false;
+            }
+
+            for (lesson of window.lessonsNextWeek) {
+              if ((new Date(lesson.startDateTime)).toDateString() === time.toDateString()) {
+                isValidSlot = false;
+              }
+            }
+
+            if (isValidSlot) {
+              const backendTimeString = time.toLocaleString("sv-SE").replace(" ", "T");
+              timeslots += `
+                  <div class="timeslot" onclick="bookLesson('${backendTimeString}')" style='cursor: pointer;'">
+                      ${formattedTime}<br>
+                      FREE
+                  </div>
+              `;
+            } else {
+              timeslots += `
+                  <div class="invalid-timeslot"">
+                      ${formattedTime}<br>
+                      UNAVAIL
+                  </div>
+              `;
+            }
+
 
             time.setMinutes(time.getMinutes() + 30);
           }
@@ -304,14 +338,6 @@
               return;
           }
 
-          console.log({
-            tutorId: window.timetableTutor,
-            pupilMatric: window.matric,
-            pupilName: window.pupilName,
-            instrument: window.timetableInstrument,
-            startDateTime: timeString,
-          });
-
           try {
               await makePostRequest("/bookings/new", {
                 tutorId: Number(window.timetableTutor),
@@ -325,8 +351,8 @@
               return;
           }
 
-          renderDashboard();
-          updateBookingSection();
+          await renderDashboard();
+          await updateBookingSection();
         }
     </script>
 </html>

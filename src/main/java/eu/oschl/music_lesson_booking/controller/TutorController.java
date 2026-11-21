@@ -1,6 +1,7 @@
 package eu.oschl.music_lesson_booking.controller;
 
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
+import eu.oschl.music_lesson_booking.database.entity.TutorUnavailability;
 import eu.oschl.music_lesson_booking.service.TutorService;
 import java.util.List;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,5 +27,12 @@ public class TutorController {
         @RequestParam(required = false) String instrument
     ) {
         return tutorService.getEligibleTutors(pupilMatric, instrument);
+    }
+
+    @GetMapping("/unavailabilities/upcoming")
+    public List<TutorUnavailability> getUpcomingUnavailabilities(
+        @RequestParam Long tutorId
+    ) {
+        return tutorService.getUpcomingTutorUnavailabilities(tutorId);
     }
 }

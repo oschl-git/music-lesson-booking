@@ -10,8 +10,9 @@ import java.time.LocalDateTime;
 
 @Entity
 public class TutorUnavailability {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -33,19 +34,19 @@ public class TutorUnavailability {
         this.endTime = endTime;
     }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Tutor getTutor() {
-		return tutor;
-	}
+    // public Tutor getTutor() {
+    //     return tutor;
+    // }
 
-	public LocalDateTime getStartTime() {
-		return startTime;
-	}
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
 
-	public LocalDateTime getEndTime() {
-		return endTime;
-	}
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
 }

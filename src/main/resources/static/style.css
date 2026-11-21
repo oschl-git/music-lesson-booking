@@ -100,3 +100,10 @@ select {
     background-color: green;
     border: solid black;
 }
+
+.invalid-timeslot {
+    flex: 1;
+    height: 3rem;
+    background-color: darkred;
+    border: solid black;
+}

@@ -6,6 +6,7 @@ import eu.oschl.music_lesson_booking.database.entity.TutorUnavailability;
 import eu.oschl.music_lesson_booking.database.repository.BookingRepository;
 import eu.oschl.music_lesson_booking.database.repository.InstrumentRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
+import eu.oschl.music_lesson_booking.database.repository.TutorUnavailabilityRepository;
 import eu.oschl.music_lesson_booking.dto.Pupil;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -20,17 +21,20 @@ public class TutorService {
     private final InstrumentRepository instruments;
     private final BookingRepository bookings;
     private final PupilService pupilService;
+    private final TutorUnavailabilityRepository tutorUnavailabilities;
 
     public TutorService(
         TutorRepository tutors,
         InstrumentRepository instruments,
         BookingRepository bookings,
-        PupilService pupilService
+        PupilService pupilService,
+        TutorUnavailabilityRepository tutorUnavailabilities
     ) {
         this.tutors = tutors;
         this.instruments = instruments;
         this.bookings = bookings;
         this.pupilService = pupilService;
+        this.tutorUnavailabilities = tutorUnavailabilities;
     }
 
     public Tutor getTutorById(Long id) {
@@ -116,5 +120,9 @@ public class TutorService {
         }
 
         return true;
+    }
+
+    public List<TutorUnavailability> getUpcomingTutorUnavailabilities(Long tutorId) {
+        return this.tutorUnavailabilities.findUpcomingUnavailabilities(tutorId, LocalDateTime.now());
     }
 }
