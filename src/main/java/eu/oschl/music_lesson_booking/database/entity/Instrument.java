@@ -1,5 +1,7 @@
 package eu.oschl.music_lesson_booking.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,6 +42,7 @@ public class Instrument {
         return id;
     }
 
+    @JsonIgnore
     public Tutor getTutor() {
         return tutor;
     }

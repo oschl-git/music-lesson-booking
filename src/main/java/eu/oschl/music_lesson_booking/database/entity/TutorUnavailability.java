@@ -8,6 +8,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class TutorUnavailability {
 
@@ -38,6 +40,7 @@ public class TutorUnavailability {
         return id;
     }
 
+    @JsonIgnore
     public Tutor getTutor() {
         return tutor;
     }

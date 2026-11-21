@@ -87,7 +87,7 @@ select {
 }
 
 .cancel-button {
-    background-color: red;
+    background-color: #b0007f;
 }
 
 .timeslot-container {
@@ -97,15 +97,20 @@ select {
 .timeslot {
     flex: 1;
     height: 3rem;
-    background-color: green;
+    background-color: #00a8a8;
     border: solid black;
+}
+
+.timeslot:hover {
+    background-color: #b0007f;
 }
 
 .invalid-timeslot {
     flex: 1;
     height: 3rem;
-    background-color: darkred;
-    border: solid black;
+    background-color: black;
+    color: white;
+    border: solid darkred;
 }
 
 .bold {
