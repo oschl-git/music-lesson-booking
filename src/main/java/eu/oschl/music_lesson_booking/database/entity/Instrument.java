@@ -24,22 +24,35 @@ public class Instrument {
 
     protected Instrument() {}
 
-    public Instrument(Tutor tutor, String instrument, int minLevel, int maxLevel) {
+    public Instrument(
+        Tutor tutor,
+        String instrument,
+        int minLevel,
+        int maxLevel
+    ) {
         this.tutor = tutor;
         this.instrument = instrument;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
     }
 
-	public String getInstrument() {
-		return instrument;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public int getMinLevel() {
-		return minLevel;
-	}
+    public Tutor getTutor() {
+        return tutor;
+    }
 
-	public int getMaxLevel() {
-		return maxLevel;
-	}
+    public String getInstrument() {
+        return instrument;
+    }
+
+    public int getMinLevel() {
+        return minLevel;
+    }
+
+    public int getMaxLevel() {
+        return maxLevel;
+    }
 }

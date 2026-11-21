@@ -9,7 +9,6 @@
     <body>
         <div id="login">
             <h1 class="align-center large-top-margin">Pupil Login</h1>
-
             <p class="align-center large-top-margin bottom-margin">
                 To access, enter your full name and matriculation number.
             </p>
@@ -25,7 +24,7 @@
                     <input type="number" id="matric" name="matric" required />
                 </div>
 
-                <button class="top-margin" type="submit">Log in</button>
+                <button class="top-margin" type="submit" id="log-in-button">Log in</button>
 
                 <div class="large-top-margin">
                     <a href="/"><< Back to role selection</a>
@@ -35,7 +34,8 @@
         <div id="dashboard" hidden>
             <h1 class="align-center large-top-margin">Pupil Dashboard</h1>
 
-            <p class="align-center top-margin bottom-margin">
+            <p id="logged-in-details" class="align-center italic"></p>
+            <p class="align-center top-margin bottom-margin bold">
                 On this page, you can view and cancel your booked lessons, and book lessons for next week.
             </p>
 
@@ -62,7 +62,7 @@
             <div id="tutor-timetable">
 
             </div>
-            <div class="large-top-margin align-center">
+            <div class="large-top-margin large-bottom-margin align-center">
                 <a href="/"><< Log out</a>
             </div>
         </div>
@@ -70,154 +70,167 @@
 
     <script src="../js/common.js"></script>
     <script>
-        document
-            .getElementById("login-form")
-            .addEventListener("submit", async (event) => {
-                event.preventDefault();
+    document
+        .getElementById("login-form")
+        .addEventListener("submit", async (event) => {
+            event.preventDefault();
 
-                const name = document.getElementById("name").value.trim();
-                const matric = Number(document.getElementById("matric").value);
+            document.getElementById("log-in-button").disabled = true;
 
-                let result;
+            const name = document.getElementById("name").value.trim();
+            const matric = Number(document.getElementById("matric").value);
 
-                try {
-                    result = await makePostRequest("/pupils/verify", {
-                        name: name,
-                        matric: matric,
-                    });
-                } catch (error) {
-                    alert("Verification failed.");
-                    return;
-                }
+            let result;
 
-                if (result.valid) {
-                    window.pupilName = result.name;
-                    window.matric = result.matric;
-                    window.age = result.age;
-                    window.instruments = result.instruments;
+            try {
+                result = await makePostRequest("/pupils/verify", {
+                    name: name,
+                    matric: matric,
+                });
+            } catch (error) {
+                alert("Verification failed.");
+                return;
+            }
 
-                    window.tutors = await makeGetRequest(`/tutors/eligible?pupilMatric=${result.matric}`);
+            if (result.valid) {
+                window.pupilName = result.name;
+                window.matric = result.matric;
+                window.age = result.age;
+                window.instruments = result.instruments;
 
-                    document.getElementById("login").hidden = true;
-                    document.getElementById("dashboard").hidden = false;
+                window.tutors = await makeGetRequest(`/tutors/eligible?pupilMatric=${result.matric}`);
 
-                    await renderDashboard();
-                    await updateBookingSection();
-                } else {
-                    alert(
-                        "Incorrect login details. Check your name and matriculation number.",
-                    );
-                    return;
-                }
-            });
+                document.getElementById("login").hidden = true;
+                document.getElementById("dashboard").hidden = false;
 
-        async function renderDashboard() {
-          const thisWeekSection = document.getElementById("this-week-section");
-          const nextWeekSection = document.getElementById("next-week-section");
-          const instrumentSelect = document.getElementById("instrument-select");
+                const loggedInDetailsElement = document.getElementById("logged-in-details");
 
-          thisWeekSection.innerHTML = "";
-          nextWeekSection.innerHTML = "";
+                loggedInDetailsElement.innerHTML = `Logged in pupil: ${window.pupilName} (matriculation number: ${window.matric}, age: ${window.age})`
 
-          const lessonsThisWeek = await makeGetRequest(`/bookings/this-week/pupil?matric=${window.matric}`)
-          const lessonsNextWeek = await makeGetRequest(`/bookings/next-week/pupil?matric=${window.matric}`)
+                await renderDashboard();
+                await updateBookingSection();
+            } else {
+                alert(
+                    "Incorrect login details. Check your name and matriculation number.",
+                );
+                return;
+            }
+        });
 
-          window.lessonsNextWeek = lessonsNextWeek;
+    async function renderDashboard() {
+        const thisWeekSection = document.getElementById("this-week-section");
+        const nextWeekSection = document.getElementById("next-week-section");
+        const instrumentSelect = document.getElementById("instrument-select");
 
-          for (const lesson of lessonsThisWeek) {
+        thisWeekSection.innerHTML = "";
+        nextWeekSection.innerHTML = "";
+
+        const lessonsThisWeek = await makeGetRequest(`/bookings/this-week/pupil?matric=${window.matric}`)
+        const lessonsNextWeek = await makeGetRequest(`/bookings/next-week/pupil?matric=${window.matric}`)
+
+        window.lessonsNextWeek = lessonsNextWeek;
+
+        for (const lesson of lessonsThisWeek) {
             thisWeekSection.innerHTML += bookedLessonHTML(lesson);
-          }
+        }
 
-          if (thisWeekSection.innerHTML === "") {
+        if (thisWeekSection.innerHTML === "") {
             thisWeekSection.innerHTML = "You have no lessons booked this week."
-          }
+        }
 
-          for (const lesson of lessonsNextWeek) {
+        for (const lesson of lessonsNextWeek) {
             nextWeekSection.innerHTML += bookedLessonHTML(lesson, true);
-          }
+        }
 
-          if (nextWeekSection.innerHTML === "") {
+        if (nextWeekSection.innerHTML === "") {
             nextWeekSection.innerHTML = "You have no lessons booked next week."
-          }
+        }
 
-          for (const instrument of Object.keys(window.instruments)) {
+        for (const instrument of Object.keys(window.instruments)) {
             const option = document.createElement("option");
 
             option.value = instrument;
             option.textContent = instrument;
 
             instrumentSelect.appendChild(option);
-          }
+        }
+    }
+
+    async function cancelBooking(bookingId) {
+        if (!confirm("Are you sure you want to cancel this booking?")) {
+            return;
         }
 
-        async function cancelBooking(bookingId) {
-            if (!confirm("Are you sure you want to cancel this booking?")) {
-                return;
-            }
-
-            try {
-                await makeDeleteRequest(`/bookings/${bookingId}`);
-            } catch (error) {
-                alert("Failed cancelling booking.");
-            }
-
-            await renderDashboard();
-            await updateBookingSection();
+        try {
+            await makeDeleteRequest(`/bookings/${bookingId}`);
+        } catch (error) {
+            alert("Failed cancelling booking.");
         }
 
-        function bookedLessonHTML(lesson, allowCancel = false) {
-          const startDate = new Date(lesson.startDateTime);
-          const endDate = new Date(startDate);
+        await renderDashboard();
+        await updateBookingSection();
+    }
 
-          endDate.setMinutes(endDate.getMinutes() + 30);
+    function bookedLessonHTML(lesson, allowCancel = false) {
+        const startDate = new Date(lesson.startDateTime);
+        const endDate = new Date(startDate);
 
-          const date = startDate.toLocaleDateString("en-GB");
-          const start = startDate.toLocaleTimeString("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit"
-          });
-          const end = endDate.toLocaleTimeString("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit"
-          });
+        endDate.setMinutes(endDate.getMinutes() + 30);
 
-          let html = `
-            <div class="booked-lesson">
-              <h4 class="capitalize">${lesson.instrument}</h4>
-              <ul>
-                <li>${date}</li>
-                <li>${start} - ${end}</li>
-                <li>tutor: ${lesson.tutor.firstName} ${lesson.tutor.lastName}</li>
-              </ul>
-          `
+        const date = startDate.toLocaleDateString("en-GB", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
 
-          if (allowCancel) {
+        const start = startDate.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        const end = endDate.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        let html = `
+        <div class="booked-lesson">
+          <h4 class="capitalize">${lesson.instrument}</h4>
+          <ul>
+            <li>${date}</li>
+            <li>${start} - ${end}</li>
+            <li>tutor: ${lesson.tutor.firstName} ${lesson.tutor.lastName}</li>
+          </ul>
+      `
+
+        if (allowCancel) {
             html += `
-              <button class="cancel-button" onclick="cancelBooking(${lesson.id})">
-                  Cancel booking
-              </button>
-            `
-          }
-
-          html += "</div>"
-
-          return html;
+          <button class="cancel-button" onclick="cancelBooking(${lesson.id})">
+              Cancel booking
+          </button>
+        `
         }
 
-        document.getElementById("tutor-select").addEventListener("change", updateBookingSection);
-        document.getElementById("instrument-select").addEventListener("change", updateBookingSection);
+        html += "</div>"
 
-        async function updateBookingSection() {
-          const instrumentSelect = document.getElementById("instrument-select");
-          const tutorSelect = document.getElementById("tutor-select");
+        return html;
+    }
 
-          const selectedTutor = tutorSelect.value;
+    document.getElementById("tutor-select").addEventListener("change", updateBookingSection);
+    document.getElementById("instrument-select").addEventListener("change", updateBookingSection);
 
-          tutorSelect.innerHTML = '<option value="">Select a tutor</option>';
+    async function updateBookingSection() {
+        const instrumentSelect = document.getElementById("instrument-select");
+        const tutorSelect = document.getElementById("tutor-select");
 
-          for (const tutor of window.tutors) {
+        const selectedTutor = tutorSelect.value;
+
+        tutorSelect.innerHTML = '<option value="">Select a tutor</option>';
+
+        for (const tutor of window.tutors) {
             if (instrumentSelect.value !== "" && !(await canTutorTeachPupilInstrument(instrumentSelect.value, tutor, window.instruments))) {
-              continue;
+                continue;
             }
 
             const option = document.createElement("option");
@@ -226,166 +239,169 @@
             option.textContent = tutor.firstName + " " + tutor.lastName;
 
             tutorSelect.appendChild(option);
-          }
-
-          tutorSelect.value = selectedTutor;
-
-          if (tutorSelect.selectedIndex === -1) {
-              tutorSelect.value = "";
-          }
-
-          if (window.timetableInstrument && window.timetableTutor) {
-            showTutorTimetable();
-          }
         }
 
-        document.getElementById("show-timetable-button").addEventListener("click", () => {
-          const instrumentSelect = document.getElementById("instrument-select");
-          const tutorSelect = document.getElementById("tutor-select");
+        tutorSelect.value = selectedTutor;
 
-          if (instrumentSelect.value === "" || tutorSelect.value === "") {
+        if (tutorSelect.selectedIndex === -1) {
+            tutorSelect.value = "";
+        }
+
+        if (window.timetableInstrument && window.timetableTutor) {
+            showTutorTimetable();
+        }
+    }
+
+    document.getElementById("show-timetable-button").addEventListener("click", () => {
+        const instrumentSelect = document.getElementById("instrument-select");
+        const tutorSelect = document.getElementById("tutor-select");
+
+        if (instrumentSelect.value === "" || tutorSelect.value === "") {
             alert("Instrument and tutor must be selected to show the booking timetable.")
             return;
-          }
-
-          window.timetableInstrument = instrumentSelect.value;
-          window.timetableTutor = tutorSelect.value;
-
-          showTutorTimetable();
-        });
-
-        async function showTutorTimetable() {
-          const tutorTimetable = document.getElementById("tutor-timetable");
-
-          tutorTimetable.innerHTML = "";
-
-          const tutorUnavailabilities = await makeGetRequest(`/tutors/unavailabilities/upcoming?tutorId=${window.timetableTutor}`);
-          const tutorBookings = await makeGetRequest(`/bookings/next-week/tutor?tutorId=${window.timetableTutor}`);
-
-          for (let i = 0; i < 7; i++) {
-            tutorTimetable.innerHTML += await getDayTimetableHTML(i, tutorUnavailabilities, tutorBookings);
-          }
         }
 
-        async function getDayTimetableHTML(dayIndex, tutorUnavailabilities, tutorBookings) {
-          const time = getNextMonday();
-          time.setDate(time.getDate() + dayIndex)
-          time.setHours(9, 0, 0, 0);
+        window.timetableInstrument = instrumentSelect.value;
+        window.timetableTutor = tutorSelect.value;
 
-          const formattedDay = time.toLocaleDateString("en-GB", {
-            weekday: "long"
-          });
+        showTutorTimetable();
+    });
 
-          timeslots = "";
-          for (let i = 0; i < 22; i++) {
+    async function showTutorTimetable() {
+        const tutorTimetable = document.getElementById("tutor-timetable");
+
+        tutorTimetable.innerHTML = "";
+
+        const tutorUnavailabilities = await makeGetRequest(`/tutors/unavailabilities/upcoming?tutorId=${window.timetableTutor}`);
+        const tutorBookings = await makeGetRequest(`/bookings/next-week/tutor?tutorId=${window.timetableTutor}`);
+
+        for (let i = 0; i < 7; i++) {
+            tutorTimetable.innerHTML += await getDayTimetableHTML(i, tutorUnavailabilities, tutorBookings);
+        }
+    }
+
+    async function getDayTimetableHTML(dayIndex, tutorUnavailabilities, tutorBookings) {
+        const time = getNextMonday();
+        time.setDate(time.getDate() + dayIndex)
+        time.setHours(9, 0, 0, 0);
+
+        const formattedDay = time.toLocaleDateString("en-GB", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+
+        timeslots = "";
+        for (let i = 0; i < 22; i++) {
             const formattedTime = time.toLocaleTimeString("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit"
+                hour: "2-digit",
+                minute: "2-digit"
             });
 
             let isValidSlot = true;
 
             if (time.getDay() === 0) {
-              isValidSlot = false;
+                isValidSlot = false;
             } else if (time.getDay() !== 6 && (time.getHours() < 16 || time.getHours() > 20)) {
-              isValidSlot = false;
-            } else if (window.age <=16 && time.getHours() >= 18) {
-              isValidSlot = false;
+                isValidSlot = false;
+            } else if (window.age <= 16 && time.getHours() >= 18) {
+                isValidSlot = false;
             }
 
             if (isValidSlot) {
-              for (lesson of window.lessonsNextWeek) {
-                if ((new Date(lesson.startDateTime)).toDateString() === time.toDateString()) {
-                  isValidSlot = false;
+                for (lesson of window.lessonsNextWeek) {
+                    if ((new Date(lesson.startDateTime)).toDateString() === time.toDateString()) {
+                        isValidSlot = false;
+                    }
                 }
-              }
             }
 
             if (isValidSlot) {
-              for (const unavailability of tutorUnavailabilities) {
-                  const start = new Date(unavailability.startTime);
-                  const end = new Date(unavailability.endTime);
+                for (const unavailability of tutorUnavailabilities) {
+                    const start = new Date(unavailability.startTime);
+                    const end = new Date(unavailability.endTime);
 
-                  const slotEnd = new Date(time);
-                  slotEnd.setMinutes(slotEnd.getMinutes() + 30);
+                    const slotEnd = new Date(time);
+                    slotEnd.setMinutes(slotEnd.getMinutes() + 30);
 
-                  if (time < end && slotEnd > start) {
-                      isValidSlot = false;
-                      break;
-                  }
-              }
+                    if (time < end && slotEnd > start) {
+                        isValidSlot = false;
+                        break;
+                    }
+                }
             }
 
             if (isValidSlot) {
-              for (const booking of tutorBookings) {
-                  const start = new Date(booking.startDateTime);
+                for (const booking of tutorBookings) {
+                    const start = new Date(booking.startDateTime);
 
-                  if (time.getTime() === start.getTime()) {
-                    isValidSlot = false;
-                    break;
-                  }
-              }
+                    if (time.getTime() === start.getTime()) {
+                        isValidSlot = false;
+                        break;
+                    }
+                }
             }
 
             if (isValidSlot) {
-              const backendTimeString = time.toLocaleString("sv-SE").replace(" ", "T");
-              timeslots += `
-                  <div class="timeslot" onclick="bookLesson('${backendTimeString}')" style='cursor: pointer;'">
-                      ${formattedTime}<br>
-                      FREE
-                  </div>
-              `;
+                const backendTimeString = time.toLocaleString("sv-SE").replace(" ", "T");
+                timeslots += `
+              <div class="timeslot" onclick="bookLesson('${backendTimeString}')" style='cursor: pointer;'">
+                  ${formattedTime}<br>
+                  FREE
+              </div>
+          `;
             } else {
-              timeslots += `
-                  <div class="invalid-timeslot"">
-                      ${formattedTime}<br>
-                      UNAVAIL
-                  </div>
-              `;
+                timeslots += `
+              <div class="invalid-timeslot"">
+                  ${formattedTime}<br>
+                  UNAVAIL
+              </div>
+          `;
             }
 
 
             time.setMinutes(time.getMinutes() + 30);
-          }
-
-          return `
-            <h3 class="top-margin">${formattedDay}</h3>
-            <div class="timeslot-container">
-              ${timeslots}
-            </div>
-          `;
         }
 
-        async function bookLesson(timeString) {
-          const date = new Date(timeString);
+        return `
+        <h3 class="top-margin">${formattedDay}</h3>
+        <div class="timeslot-container">
+          ${timeslots}
+        </div>
+      `;
+    }
 
-          const humanReadableTime = date.toLocaleString("en-GB", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-              hour: "2-digit",
-              minute: "2-digit"
-          });
+    async function bookLesson(timeString) {
+        const date = new Date(timeString);
 
-          if (!confirm(`Are you sure you want to book ${window.timetableInstrument} at ${humanReadableTime}?`)) {
-              return;
-          }
+        const humanReadableTime = date.toLocaleString("en-GB", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
 
-          try {
-              await makePostRequest("/bookings/new", {
+        if (!confirm(`Are you sure you want to book ${window.timetableInstrument} at ${humanReadableTime}?`)) {
+            return;
+        }
+
+        try {
+            await makePostRequest("/bookings/new", {
                 tutorId: Number(window.timetableTutor),
                 pupilMatric: window.matric,
                 pupilName: window.pupilName,
                 instrument: window.timetableInstrument,
                 startDateTime: timeString,
-              });
-          } catch (error) {
-              alert("Failed booking lesson.");
-              return;
-          }
-
-          await renderDashboard();
-          await updateBookingSection();
+            });
+        } catch (error) {
+            alert("Failed booking lesson.");
+            return;
         }
+
+        await renderDashboard();
+        await updateBookingSection();
+    }
     </script>
 </html>

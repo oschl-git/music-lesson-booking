@@ -1,20 +1,15 @@
 package eu.oschl.music_lesson_booking.service;
 
 import eu.oschl.music_lesson_booking.database.entity.Booking;
-import eu.oschl.music_lesson_booking.database.entity.Instrument;
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
-import eu.oschl.music_lesson_booking.database.entity.TutorUnavailability;
 import eu.oschl.music_lesson_booking.database.repository.BookingRepository;
 import eu.oschl.music_lesson_booking.dto.BookingRequest;
-import eu.oschl.music_lesson_booking.dto.Pupil;
 import jakarta.persistence.EntityNotFoundException;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -74,15 +69,20 @@ public class BookingService {
     }
 
     public void cancelBooking(Long bookingId) {
-        var booking = bookings.findById(bookingId).orElseThrow(
-            () -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "The booking does not exist"
-            )
-        );
+        var booking = bookings
+            .findById(bookingId)
+            .orElseThrow(() ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "The booking does not exist"
+                )
+            );
 
         if (!isNextWeek(booking.getStartDateTime())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only bookings next week can be cancelled");
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Only bookings next week can be cancelled"
+            );
         }
 
         this.bookings.deleteById(bookingId);
@@ -92,28 +92,44 @@ public class BookingService {
         var end = getNextMonday();
         var start = end.minusDays(7);
 
-        return this.bookings.findBookingsForPupilInRange(matric, start.atStartOfDay(), end.atStartOfDay());
+        return this.bookings.findBookingsForPupilInRange(
+            matric,
+            start.atStartOfDay(),
+            end.atStartOfDay()
+        );
     }
 
     public List<Booking> getNextWeekBookingsForPupil(int matric) {
         var start = getNextMonday();
         var end = start.plusDays(7);
 
-        return this.bookings.findBookingsForPupilInRange(matric, start.atStartOfDay(), end.atStartOfDay());
+        return this.bookings.findBookingsForPupilInRange(
+            matric,
+            start.atStartOfDay(),
+            end.atStartOfDay()
+        );
     }
 
     public List<Booking> getThisWeekBookingsForTutor(Long tutorId) {
         var end = getNextMonday();
         var start = end.minusDays(7);
 
-        return this.bookings.findBookingsForTutorInRange(tutorId, start.atStartOfDay(), end.atStartOfDay());
+        return this.bookings.findBookingsForTutorInRange(
+            tutorId,
+            start.atStartOfDay(),
+            end.atStartOfDay()
+        );
     }
 
     public List<Booking> getNextWeekBookingsForTutor(Long tutorId) {
         var start = getNextMonday();
         var end = start.plusDays(7);
 
-        return this.bookings.findBookingsForTutorInRange(tutorId, start.atStartOfDay(), end.atStartOfDay());
+        return this.bookings.findBookingsForTutorInRange(
+            tutorId,
+            start.atStartOfDay(),
+            end.atStartOfDay()
+        );
     }
 
     private boolean isBookingValid(Booking booking, String pupilName) {
@@ -132,7 +148,12 @@ public class BookingService {
 
         var tutor = booking.getTutor();
 
-        if (!tutorService.isTutorAvailableInTimeslot(booking.getStartDateTime(), tutor)) {
+        if (
+            !tutorService.isTutorAvailableInTimeslot(
+                booking.getStartDateTime(),
+                tutor
+            )
+        ) {
             return false;
         }
 
@@ -218,9 +239,7 @@ public class BookingService {
         var nextMonday = getNextMonday();
         var nextSunday = nextMonday.plusDays(6);
 
-        if (
-            startDate.isBefore(nextMonday) || startDate.isAfter(nextSunday)
-        ) {
+        if (startDate.isBefore(nextMonday) || startDate.isAfter(nextSunday)) {
             return false;
         }
 

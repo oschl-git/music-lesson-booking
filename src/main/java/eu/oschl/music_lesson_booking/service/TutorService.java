@@ -4,7 +4,6 @@ import eu.oschl.music_lesson_booking.database.entity.Instrument;
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
 import eu.oschl.music_lesson_booking.database.entity.TutorUnavailability;
 import eu.oschl.music_lesson_booking.database.repository.BookingRepository;
-import eu.oschl.music_lesson_booking.database.repository.InstrumentRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorUnavailabilityRepository;
 import eu.oschl.music_lesson_booking.dto.Pupil;
@@ -18,20 +17,17 @@ import org.springframework.stereotype.Service;
 public class TutorService {
 
     private final TutorRepository tutors;
-    private final InstrumentRepository instruments;
     private final BookingRepository bookings;
     private final PupilService pupilService;
     private final TutorUnavailabilityRepository tutorUnavailabilities;
 
     public TutorService(
         TutorRepository tutors,
-        InstrumentRepository instruments,
         BookingRepository bookings,
         PupilService pupilService,
         TutorUnavailabilityRepository tutorUnavailabilities
     ) {
         this.tutors = tutors;
-        this.instruments = instruments;
         this.bookings = bookings;
         this.pupilService = pupilService;
         this.tutorUnavailabilities = tutorUnavailabilities;
@@ -122,7 +118,12 @@ public class TutorService {
         return true;
     }
 
-    public List<TutorUnavailability> getUpcomingTutorUnavailabilities(Long tutorId) {
-        return this.tutorUnavailabilities.findUpcomingUnavailabilities(tutorId, LocalDateTime.now());
+    public List<TutorUnavailability> getUpcomingTutorUnavailabilities(
+        Long tutorId
+    ) {
+        return this.tutorUnavailabilities.findUpcomingUnavailabilities(
+            tutorId,
+            LocalDateTime.now()
+        );
     }
 }

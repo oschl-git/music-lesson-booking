@@ -27,9 +27,6 @@ public class PupilService {
             .retrieve()
             .body(JsonNode.class);
 
-        return mapper.treeToValue(
-            response.get("pupil"),
-            Pupil.class
-        );
+        return mapper.treeToValue(response.get("pupil"), Pupil.class);
     }
 }

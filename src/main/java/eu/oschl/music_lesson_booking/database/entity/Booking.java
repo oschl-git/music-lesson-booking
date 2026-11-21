@@ -41,19 +41,19 @@ public class Booking {
         return id;
     }
 
-	public LocalDateTime getStartDateTime() {
-		return startDateTime;
-	}
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
 
-	public Tutor getTutor() {
-		return tutor;
-	}
+    public Tutor getTutor() {
+        return tutor;
+    }
 
-	public String getInstrument() {
-		return instrument;
-	}
+    public String getInstrument() {
+        return instrument;
+    }
 
-	public int getPupilMatric() {
-		return pupilMatric;
-	}
+    public int getPupilMatric() {
+        return pupilMatric;
+    }
 }

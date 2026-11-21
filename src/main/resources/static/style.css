@@ -107,3 +107,11 @@ select {
     background-color: darkred;
     border: solid black;
 }
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}

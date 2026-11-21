@@ -55,12 +55,16 @@ public class BookingController {
     }
 
     @GetMapping("/this-week/tutor")
-    public List<Booking> getThisWeekBookingsForTutor(@RequestParam Long tutorId) {
+    public List<Booking> getThisWeekBookingsForTutor(
+        @RequestParam Long tutorId
+    ) {
         return bookingService.getThisWeekBookingsForTutor(tutorId);
     }
 
     @GetMapping("/next-week/tutor")
-    public List<Booking> getNextWeekBookingsForTutor(@RequestParam Long tutorId) {
+    public List<Booking> getNextWeekBookingsForTutor(
+        @RequestParam Long tutorId
+    ) {
         return bookingService.getNextWeekBookingsForTutor(tutorId);
     }
 }

@@ -38,9 +38,9 @@ public class TutorUnavailability {
         return id;
     }
 
-    // public Tutor getTutor() {
-    //     return tutor;
-    // }
+    public Tutor getTutor() {
+        return tutor;
+    }
 
     public LocalDateTime getStartTime() {
         return startTime;

@@ -1,10 +1,11 @@
+.database.mv.db
+.database.trace.db
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.database.mv.db
-.database.trace.db
 
 ### STS ###
 .apt_generated

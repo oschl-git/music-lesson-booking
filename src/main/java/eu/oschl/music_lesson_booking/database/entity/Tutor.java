@@ -1,12 +1,11 @@
 package eu.oschl.music_lesson_booking.database.entity;
 
-import java.util.List;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import java.util.List;
 
 @Entity
 public class Tutor {
@@ -31,23 +30,23 @@ public class Tutor {
         this.lastName = lastName;
     }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public List<Instrument> getInstruments() {
-		return instruments;
-	}
+    public List<Instrument> getInstruments() {
+        return instruments;
+    }
 
-	public List<TutorUnavailability> getTutorUnavailabilities() {
-		return tutorUnavailabilities;
-	}
+    public List<TutorUnavailability> getTutorUnavailabilities() {
+        return tutorUnavailabilities;
+    }
 }
