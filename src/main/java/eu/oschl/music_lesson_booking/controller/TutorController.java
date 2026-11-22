@@ -101,7 +101,7 @@ public class TutorController {
         return tutorService.getUpcomingTutorUnavailabilities(tutorId);
     }
 
-    @PostMapping("/unavailabilities/")
+    @PostMapping("/unavailabilities")
     public ResponseEntity<TutorUnavailability> createTutorUnavailability(
         @RequestHeader(value = "Authorization", required = false) String auth,
         @RequestBody TutorUnavailabilityRequest body
@@ -174,7 +174,12 @@ public class TutorController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/instruments/")
+    @GetMapping("/instruments/{id}")
+    public Instrument getInstrument(@PathVariable Long id) {
+        return tutorService.getInstrumentById(id);
+    }
+
+    @PostMapping("/instruments")
     public ResponseEntity<Instrument> createInstrument(
         @RequestHeader(value = "Authorization", required = false) String auth,
         @RequestBody InstrumentRequest body
