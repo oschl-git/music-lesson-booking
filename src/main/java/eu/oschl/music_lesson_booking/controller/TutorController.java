@@ -8,9 +8,7 @@ import eu.oschl.music_lesson_booking.dto.TutorVerificationRequest;
 import eu.oschl.music_lesson_booking.dto.TutorVerificationResponse;
 import eu.oschl.music_lesson_booking.service.AuthService;
 import eu.oschl.music_lesson_booking.service.TutorService;
-import jakarta.persistence.EntityNotFoundException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +39,11 @@ public class TutorController {
         this.tutorService = tutorService;
     }
 
+    @GetMapping("/{$id}")
+    public Tutor getTutor(@PathVariable Long id) {
+        return tutorService.getTutorById(id);
+    }
+
     @PostMapping("/verify")
     public ResponseEntity<TutorVerificationResponse> verifyTutor(
         @RequestBody TutorVerificationRequest body
@@ -49,6 +52,7 @@ public class TutorController {
             body.username(),
             body.password()
         );
+
         if (tutor != null) {
             return ResponseEntity.ok(
                 new TutorVerificationResponse(
@@ -66,7 +70,7 @@ public class TutorController {
         );
     }
 
-    @PostMapping("/new")
+    @PostMapping("/")
     public ResponseEntity<Tutor> createTutor(@RequestBody TutorRequest body) {
         var tutor = this.tutorService.createTutor(body);
 
@@ -83,6 +87,11 @@ public class TutorController {
         return tutorService.getEligibleTutors(pupilMatric, instrument);
     }
 
+    @GetMapping("/unavailabilities/{$id}")
+    public TutorUnavailability getTutorUnavailability(@PathVariable Long id) {
+        return tutorService.getUnavailabiltyById(id);
+    }
+
     @GetMapping("/unavailabilities/upcoming")
     public List<TutorUnavailability> getUpcomingUnavailabilities(
         @RequestParam Long tutorId
@@ -90,7 +99,7 @@ public class TutorController {
         return tutorService.getUpcomingTutorUnavailabilities(tutorId);
     }
 
-    @PostMapping("/unavailabilities/new")
+    @PostMapping("/unavailabilities/")
     public ResponseEntity<TutorUnavailability> createTutorUnavailability(
         @RequestHeader(value = "Authorization", required = false) String auth,
         @RequestBody TutorUnavailabilityRequest body

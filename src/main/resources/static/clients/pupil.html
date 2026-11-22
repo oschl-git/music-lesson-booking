@@ -390,7 +390,7 @@
         }
 
         try {
-            await makePostRequest("/bookings/new", {
+            await makePostRequest("/bookings/", {
                 tutorId: Number(window.timetableTutor),
                 pupilMatric: window.matric,
                 pupilName: window.pupilName,

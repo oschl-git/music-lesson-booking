@@ -27,7 +27,12 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping("/new")
+    @GetMapping("/{$id}")
+    public Booking getBooking(@PathVariable Long id) {
+        return bookingService.getBookinyById(id);
+    }
+
+    @PostMapping("/")
     public ResponseEntity<Booking> createBooking(
         @RequestBody BookingRequest body
     ) {

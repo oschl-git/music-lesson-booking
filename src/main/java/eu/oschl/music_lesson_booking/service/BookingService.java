@@ -32,6 +32,14 @@ public class BookingService {
         this.pupilService = pupilService;
     }
 
+    public Booking getBookinyById(Long bookingId) {
+        return this.bookings
+            .findById(bookingId)
+            .orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+            );
+    }
+
     public Booking createBooking(BookingRequest bookingRequest) {
         Tutor tutor;
 

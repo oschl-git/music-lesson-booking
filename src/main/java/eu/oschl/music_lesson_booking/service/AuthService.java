@@ -2,13 +2,11 @@ package eu.oschl.music_lesson_booking.service;
 
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HexFormat;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,7 +25,10 @@ public class AuthService {
 
         var passwordHash = hashPassword(plaintext, salt);
 
-        return HexFormat.of().formatHex(salt) + HexFormat.of().formatHex(passwordHash);
+        return (
+            HexFormat.of().formatHex(salt) +
+            HexFormat.of().formatHex(passwordHash)
+        );
     }
 
     public Tutor verifyTutorLogin(String username, String password) {
@@ -60,7 +61,9 @@ public class AuthService {
         try {
             md = MessageDigest.getInstance("SHA-512");
         } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("Hashing algorithm is not available");
+            throw new IllegalStateException(
+                "Hashing algorithm is not available"
+            );
         }
 
         md.update(salt);

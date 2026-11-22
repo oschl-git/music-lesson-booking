@@ -280,7 +280,7 @@
                 }
 
                 try {
-                    await makePostRequest("/tutors/unavailabilities/new", {
+                    await makePostRequest("/tutors/unavailabilities/", {
                         tutorId: Number(window.id),
                         startTime: startDateTimeElement.value,
                         endTime: endDateTimeElement.value
