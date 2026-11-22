@@ -4,8 +4,10 @@ import eu.oschl.music_lesson_booking.database.entity.Instrument;
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
 import eu.oschl.music_lesson_booking.database.entity.TutorUnavailability;
 import eu.oschl.music_lesson_booking.database.repository.BookingRepository;
+import eu.oschl.music_lesson_booking.database.repository.InstrumentRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorRepository;
 import eu.oschl.music_lesson_booking.database.repository.TutorUnavailabilityRepository;
+import eu.oschl.music_lesson_booking.dto.InstrumentRequest;
 import eu.oschl.music_lesson_booking.dto.Pupil;
 import eu.oschl.music_lesson_booking.dto.TutorRequest;
 import eu.oschl.music_lesson_booking.dto.TutorUnavailabilityRequest;
@@ -20,24 +22,27 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class TutorService {
 
-    private final TutorRepository tutors;
-    private final BookingRepository bookings;
-    private final PupilService pupilService;
-    private final TutorUnavailabilityRepository tutorUnavailabilities;
     private final AuthService authService;
+    private final BookingRepository bookings;
+    private final InstrumentRepository instruments;
+    private final PupilService pupilService;
+    private final TutorRepository tutors;
+    private final TutorUnavailabilityRepository tutorUnavailabilities;
 
     public TutorService(
         TutorRepository tutors,
         BookingRepository bookings,
         PupilService pupilService,
         TutorUnavailabilityRepository tutorUnavailabilities,
-        AuthService authService
+        AuthService authService,
+        InstrumentRepository instruments
     ) {
         this.tutors = tutors;
         this.bookings = bookings;
         this.pupilService = pupilService;
         this.tutorUnavailabilities = tutorUnavailabilities;
         this.authService = authService;
+        this.instruments = instruments;
     }
 
     public Tutor createTutor(TutorRequest request) {
@@ -196,5 +201,43 @@ public class TutorService {
 
     public void deleteTutorUnavailability(Long tutorUnavailabilityId) {
         this.tutorUnavailabilities.deleteById(tutorUnavailabilityId);
+    }
+
+    public Instrument getInstrumentById(Long instrumentId) {
+        return this.instruments
+            .findById(instrumentId)
+            .orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+            );
+    }
+
+    public Instrument createInstrument(
+        InstrumentRequest body
+    ) {
+        Tutor tutor;
+
+        try {
+            tutor = this.getTutorById(body.tutorId());
+        } catch (EntityNotFoundException exception) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Tutor with the provided ID does not exist"
+            );
+        }
+
+        var instrument = new Instrument(
+            tutor,
+            body.instrument(),
+            body.minLevel(),
+            body.maxLevel()
+        );
+
+        instrument = this.instruments.save(instrument);
+
+        return instrument;
+    }
+
+    public void deleteInstrument(Long instrumentId) {
+        this.instruments.deleteById(instrumentId);
     }
 }

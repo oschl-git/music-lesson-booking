@@ -1,7 +1,9 @@
 package eu.oschl.music_lesson_booking.controller;
 
+import eu.oschl.music_lesson_booking.database.entity.Instrument;
 import eu.oschl.music_lesson_booking.database.entity.Tutor;
 import eu.oschl.music_lesson_booking.database.entity.TutorUnavailability;
+import eu.oschl.music_lesson_booking.dto.InstrumentRequest;
 import eu.oschl.music_lesson_booking.dto.TutorRequest;
 import eu.oschl.music_lesson_booking.dto.TutorUnavailabilityRequest;
 import eu.oschl.music_lesson_booking.dto.TutorVerificationRequest;
@@ -39,7 +41,7 @@ public class TutorController {
         this.tutorService = tutorService;
     }
 
-    @GetMapping("/{$id}")
+    @GetMapping("/{id}")
     public Tutor getTutor(@PathVariable Long id) {
         return tutorService.getTutorById(id);
     }
@@ -87,7 +89,7 @@ public class TutorController {
         return tutorService.getEligibleTutors(pupilMatric, instrument);
     }
 
-    @GetMapping("/unavailabilities/{$id}")
+    @GetMapping("/unavailabilities/{id}")
     public TutorUnavailability getTutorUnavailability(@PathVariable Long id) {
         return tutorService.getUnavailabiltyById(id);
     }
@@ -128,7 +130,7 @@ public class TutorController {
         );
 
         return ResponseEntity.created(
-            URI.create("/tutors/unavailabilities" + tutorUnavailability.getId())
+            URI.create("/tutors/unavailabilities/" + tutorUnavailability.getId())
         ).body(tutorUnavailability);
     }
 
@@ -168,6 +170,77 @@ public class TutorController {
         }
 
         tutorService.deleteTutorUnavailability(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/instruments/")
+    public ResponseEntity<Instrument> createInstrument(
+        @RequestHeader(value = "Authorization", required = false) String auth,
+        @RequestBody InstrumentRequest body
+    ) {
+        if (auth == null) {
+            throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Missing authorization header"
+            );
+        }
+
+        var authorizedTutor = verifyAuthorization(auth);
+
+        if (
+            authorizedTutor == null ||
+            !Objects.equals(authorizedTutor.getId(), body.tutorId())
+        ) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Forbidden"
+            );
+        }
+
+        var instrument = this.tutorService.createInstrument(body);
+
+        return ResponseEntity.created(
+            URI.create("/tutors/instruments/" + instrument.getId())
+        ).body(instrument);
+    }
+
+    @DeleteMapping("/instruments/{id}")
+    public ResponseEntity<Void> deleteInstrument(
+        @RequestHeader(value = "Authorization", required = false) String auth,
+        @PathVariable Long id
+    ) {
+        if (auth == null) {
+            throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Missing authorization header"
+            );
+        }
+
+        var authorizedTutor = verifyAuthorization(auth);
+
+        if (authorizedTutor == null) {
+            throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Unauthorized"
+            );
+        }
+
+        var instrument = this.tutorService.getInstrumentById(id);
+
+        if (
+            !Objects.equals(
+                instrument.getTutor().getId(),
+                authorizedTutor.getId()
+            )
+        ) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Forbidden"
+            );
+        }
+
+        tutorService.deleteInstrument(id);
 
         return ResponseEntity.noContent().build();
     }
