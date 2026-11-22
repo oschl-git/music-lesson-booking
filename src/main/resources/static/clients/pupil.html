@@ -377,7 +377,7 @@
     async function bookLesson(timeString) {
         const date = new Date(timeString);
 
-        const timeString = date.toLocaleString("en-GB", {
+        const formattedTime = date.toLocaleString("en-GB", {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -385,7 +385,7 @@
             minute: "2-digit"
         });
 
-        if (!confirm(`Are you sure you want to book ${window.timetableInstrument} at ${timeString}?`)) {
+        if (!confirm(`Are you sure you want to book ${window.timetableInstrument} at ${formattedTime}?`)) {
             return;
         }
 

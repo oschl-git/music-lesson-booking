@@ -55,9 +55,9 @@
             <h2 class="large-top-margin">Periods of unavailability</h2>
             <p>Set up periods when you're unavailable. Pupils will not be able to book lessons during these times.</p>
 
-            <input type="datetime-local" id="start-datetime" required>
-            <input type="datetime-local" id="end-datetime" required>
-            <button class="create-new-period-button">Create new period</button>
+            <input type="datetime-local" step="1800" id="start-datetime" required>
+            <input type="datetime-local" step="1800" id="end-datetime" required>
+            <button id="create-new-period-button">Create new period</button>
 
             <div id="unavailabilities-section" class="booked-lesson-container top-margin"></div>
 
@@ -238,6 +238,56 @@
                     await makeDeleteRequest(`/tutors/unavailabilities/${unavailabilityId}`, window.auth);
                 } catch (error) {
                     alert("Failed freeing up unavailability period.");
+                }
+
+                await renderUnavailabilities();
+            }
+
+            document.getElementById("create-new-period-button").addEventListener("click", () => {
+                createUnavailability();
+            });
+
+            async function createUnavailability() {
+                const startDateTimeElement = document.getElementById("start-datetime");
+                const endDateTimeElement = document.getElementById("end-datetime");
+
+                if (startDateTimeElement.value === "" || endDateTimeElement.value === "") {
+                    alert("Start and end time for the unavailability must be specified.")
+                    return;
+                }
+
+                const startDate = new Date(startDateTimeElement.value);
+                const endDate = new Date(endDateTimeElement.value);
+
+                const startDateString = startDate.toLocaleString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                const endDateString = endDate.toLocaleString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                if (!confirm(`Are you sure you want to create an unavailability period from ${startDateString} to ${endDateString}?`)) {
+                    return;
+                }
+
+                try {
+                    await makePostRequest("/tutors/unavailabilities/new", {
+                        tutorId: Number(window.id),
+                        startTime: startDateTimeElement.value,
+                        endTime: endDateTimeElement.value
+                    }, window.auth);
+                } catch (error) {
+                    alert("Failed creating unavailability period.");
+                    return;
                 }
 
                 await renderUnavailabilities();

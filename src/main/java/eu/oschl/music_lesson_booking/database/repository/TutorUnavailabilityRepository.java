@@ -14,7 +14,7 @@ public interface TutorUnavailabilityRepository
         """
         SELECT u FROM TutorUnavailability u
         WHERE u.tutor.id = :tutorId
-        AND u.startTime >= :fromDate
+        AND u.endTime > :fromDate
         ORDER BY u.startTime
         """
     )
