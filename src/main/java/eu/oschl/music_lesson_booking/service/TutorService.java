@@ -188,6 +188,10 @@ public class TutorService {
             );
         }
 
+        if (!body.startTime().isAfter(body.endTime())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time of the unavailability must be before the end time")
+        }
+
         var tutorUnavailability = new TutorUnavailability(
             tutor,
             body.startTime(),

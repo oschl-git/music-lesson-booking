@@ -259,6 +259,11 @@
                 const startDate = new Date(startDateTimeElement.value);
                 const endDate = new Date(endDateTimeElement.value);
 
+                if (startDate >= endDate) {
+                    alert("End date of the unavailability must be after the start date.");
+                    return;
+                }
+
                 const startDateString = startDate.toLocaleString("en-GB", {
                     weekday: "long",
                     day: "numeric",
@@ -289,6 +294,9 @@
                     alert("Failed creating unavailability period.");
                     return;
                 }
+
+                startDateTimeElement.value = "";
+                endDateTimeElement.value = "";
 
                 await renderUnavailabilities();
             }
