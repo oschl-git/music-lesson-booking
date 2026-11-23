@@ -140,6 +140,14 @@ public class BookingService {
         );
     }
 
+    public List<Booking> getTutorBookingsForDate(Long tutorId, LocalDate date) {
+        return this.bookings.findBookingsForTutorInRange(
+            tutorId,
+            date.atStartOfDay(),
+            date.plusDays(1).atStartOfDay()
+        );
+    }
+
     private boolean isBookingValid(Booking booking, String pupilName) {
         if (
             isOutsideAllowedTimeslots(

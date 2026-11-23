@@ -4,6 +4,7 @@ import eu.oschl.music_lesson_booking.database.entity.Booking;
 import eu.oschl.music_lesson_booking.dto.BookingRequest;
 import eu.oschl.music_lesson_booking.service.BookingService;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,12 +28,20 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
+    @GetMapping("")
+    public List<Booking> getBookingsForDate(
+        @RequestParam Long tutorId,
+        @RequestParam LocalDate date
+    ) {
+        return bookingService.getTutorBookingsForDate(tutorId, date);
+    }
+
     @GetMapping("/{id}")
     public Booking getBooking(@PathVariable Long id) {
         return bookingService.getBookinyById(id);
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<Booking> createBooking(
         @RequestBody BookingRequest body
     ) {

@@ -72,7 +72,7 @@ public class TutorController {
         );
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<Tutor> createTutor(@RequestBody TutorRequest body) {
         var tutor = this.tutorService.createTutor(body);
 
