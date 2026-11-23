@@ -307,9 +307,9 @@
                 isValidSlot = false;
             } else if (time.getDay() !== 6 && (time.getHours() < 16 || time.getHours() > 20)) {
                 isValidSlot = false;
-            } else if (window.age <= 16 && time.getHours() >= 18) {
+            } else if (window.age < 16 && time.getHours() >= 18) {
                 isValidSlot = false;
-            }
+            }2
 
             if (isValidSlot) {
                 for (lesson of window.lessonsNextWeek) {
